@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>mutt</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="content-language" content="en"/>
+	<meta name="author" content="Andreas Müller"/>
+	<meta name="description" content="Code, text and assorted bits."/>
+	<meta name="keywords" content="code, text, electronics, event correlation, dab, gnu radio, dcf77, vim, mutt"/>
+	
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon" />
+	
+	<link rel="stylesheet" href="../../local.css" type="text/css" />
+	
+</head>
+<body>
+<div id="menu">
+<!-- start menubar -->
+<ul>
+    <li>
+        <a href="/">Home</a>
+    </li>
+    <li>
+        <a href="/text/">Text</a>
+    </li>
+    <li>
+        <a href="/code/">Code</a>
+    </li>
+    <li>
+        <a href="/hardware/">Hardware</a>
+    </li>
+    <li>
+        <a href="/etc/">Etc</a>
+    </li>
+    <li>
+        <a href="/about/">About</a>
+    </li>
+    <li>
+        <a href="/contact/">Contact</a>
+    </li>
+</ul>
+
+<!-- stop menubar -->
+</div>
+<div id="header">
+	<div id="title"><a href="#">0x7.ch</a></div>
+	<div id="subtitle"><a href="#">assorted bits ...</a></div>
+</div>
+<div id="page">
+<div id="breadcrumbs">
+<a href="../../">0x7.ch</a> / <a href="../">etc</a> / mutt /
+<div class="hr"></div>
+</div>
+<div id="content">
+<div class="post">
+<!-- start content -->
+<p>
+    I love the <a href="http://mutt.org">mutt</a> eMail client,
+    because it's fast, lightweight, stable and full of useful
+    features − but mainly, because it's very easy to integrate mutt
+    with Vim.
+</p>
+<p>
+    Here are some of my configuration tricks for mutt.
+</p>
+<h2>
+    Tofu protection with t-prot
+</h2>
+<p>
+    Another program that goes great with mutt is <a href=
+    "http://www.escape.de/~tolot/mutt/">t-prot</a>, which provides
+    TOFU protection, removal of overlong quotes, ad removal and
+    more. The following configuration setting allows to switch
+    between the full and the short version with the &gt; and &lt;
+    keys (I additionally use sed to remove more ads and multiple
+    empty lines; you can also use t-prot directly if you prefer):
+</p>
+<p>
+    set display<em>filter=~/.mutt/scripts/display-filter.sh macro
+    pager &lt; ":set
+    display</em>filter=~/.mutt/scripts/display-filter.shq" macro
+    pager &gt; ":set display_filter=q"
+</p>
+<h2>
+    The limit command
+</h2>
+<p>
+    The limit command is useful for groups with a large volume of
+    messages. For instance, on the Vim mailing-list, I am only
+    interested in threads I've started, threads in which I
+    participate with unread messages, threads I've flagged with
+    unread messages and new threads. The following line in
+    <tt>.muttrc</tt> does the trick:
+</p>
+<p>
+    folder-hook vim 'push
+    "~(~P!(~s\^re:))|~(~P~(~U))|~(~F~(~U))|~(~N!~s\^re:)"'
+</p>
+<h2>
+    My mutt color scheme
+</h2>
+<p>
+    Inspired by the <a href=
+    "http://www.vim.org/scripts/script.php?script_id=2360">louver
+    color scheme</a> for Vim, I have created my own <a href=
+    "/etc/mutt/muttrc.colors.xterm-256color">mutt color scheme</a>.
+    It requires an X terminal capable of 256-color mode and the
+    <tt>TERM</tt> environment variable set to
+    <tt>xterm-256color</tt>. If you need xterm as fall back, you
+    can copy the old color scheme to
+    <tt>.mutt/muttrc.colors.xterm</tt>, the new one to
+    <tt>.mutt/muttrc.colors.xterm-256color</tt> and use the
+    following config line: source ~/.mutt/muttrc.colors.$TERM
+</p>
+<p>
+    Screenshot:
+</p>
+<p>
+    <img src="/etc/mutt/mutt.png" alt="mutt colors" title="" />
+</p>
+
+<!-- end content -->
+</div>
+</div>
+<div id="sidebar"> 
+<div id="updates" class="bluebox">
+<!-- start sidebar -->
+<h4>
+    Tools
+</h4>
+<h5>
+    Navigation
+</h5>
+<ul>
+    <li>
+        <a href="/sitemap/">Sitemap</a>
+    </li>
+</ul>
+
+<!-- end sidebar -->
+</div>
+</div>
+<div style="clear: both;">&nbsp;</div>
+</div>
+<div id="footer">
+<p>Last edited <span class="date">Tue Mar  2 22:59:50 2010</span>.</p>
+<p>Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+</div>
+</body>
+</html>

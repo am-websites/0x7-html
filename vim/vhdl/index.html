@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>vhdl</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="content-language" content="en"/>
+	<meta name="author" content="Andreas Müller"/>
+	<meta name="description" content="Code, text and assorted bits."/>
+	<meta name="keywords" content="code, text, electronics, event correlation, dab, gnu radio, dcf77, vim, mutt"/>
+	
+	<link rel="icon" href="../../favicon.ico" type="image/x-icon" />
+	
+	<link rel="stylesheet" href="../../local.css" type="text/css" />
+	
+</head>
+<body>
+<div id="menu">
+<!-- start menubar -->
+<ul>
+    <li>
+        <a href="/">Home</a>
+    </li>
+    <li>
+        <a href="/text/">Text</a>
+    </li>
+    <li>
+        <a href="/code/">Code</a>
+    </li>
+    <li>
+        <a href="/hardware/">Hardware</a>
+    </li>
+    <li>
+        <a href="/etc/">Etc</a>
+    </li>
+    <li>
+        <a href="/about/">About</a>
+    </li>
+    <li>
+        <a href="/contact/">Contact</a>
+    </li>
+</ul>
+
+<!-- stop menubar -->
+</div>
+<div id="header">
+	<div id="title"><a href="#">0x7.ch</a></div>
+	<div id="subtitle"><a href="#">assorted bits ...</a></div>
+</div>
+<div id="page">
+<div id="breadcrumbs">
+<a href="../../">0x7.ch</a> / <a href="../">vim</a> / vhdl /
+<div class="hr"></div>
+</div>
+<div id="content">
+<div class="post">
+<!-- start content -->
+<h1>
+    VHDL with Vim
+</h1>
+<p>
+    If you intend to code VHDL with Vim, it is a good idea to take
+    some time and set up Vim for VHDL. You can do amazing stuff if
+    you invest a little time (and some features don't even need to
+    be set up - take a look at <tt>:help ins-completion</tt> for
+    instance).
+</p>
+<p>
+    During a semester project at ETH Zurich, I created some VHDL
+    related Vim settings. They make Vim quite efficient - during my
+    project I was able to do most of the work from within Vim, even
+    running test-benches and doing simulations. I hope they may be
+    useful to others as well and will therefore show you how to set
+    them up.
+</p>
+<h2>
+    ctags
+</h2>
+<p>
+    First, we need ctags. Since ctags does not support VHDL, I
+    created some simple regular expressions. To use them, copy this
+    <a href="/vim/vhdl/ctags">ctags-file</a> to <tt>~/.ctags</tt>.
+    You also need to set the variable
+    <tt>g:tlist<em>vhdl</em>settings</tt> correctly (see my
+    <a href="/vim/vhdl/vimrc">vimrc</a>).
+</p>
+<p>
+    If you don't know what ctags is, look at <a href=
+    "http://ctags.sourceforge.net">the ctags homepage</a>.
+</p>
+<h2>
+    Taglist plugin
+</h2>
+<p>
+    Now that we have ctags working, we can also use the taglist
+    plugin for Vim, which allows to navigate through the code in a
+    nice way. You can find it <a href=
+    "http://vim-taglist.sourceforge.net/">here</a>.
+</p>
+<h2>
+    Code highlighting and indenting
+</h2>
+<p>
+    Scripts for highlighting and indenting come with Vim. If you
+    happen to work at the ETH Zurich, you'll probably want to use
+    DZ signal naming conventions and appropriate highlighting. For
+    this, copy the file <a href="/vim/vhdl/vhdl.vim">vhdl.vim</a>
+    to <tt>~/.vim/syntax/</tt>. It only seems to work with GVim,
+    which is what I usually used.
+</p>
+<h2>
+    Automatic entity declaration and port mapping
+</h2>
+<p>
+    For this, I found some scripts on the net and adjusted them to
+    my needs. They are far from perfect, but useful nonetheless.
+    You can find them in the <a href=
+    "/vim/vhdl/scripts/">scripts</a> directory.
+</p>
+<h2>
+    Automatic code aligning
+</h2>
+<p>
+    For code aligning, I wrote some scripts on my own. However, I
+    later discovered a <a href=
+    "http://www.vim.org/scripts/script.php?script_id=294">generic
+    Vim align plugin</a>, which does a much better job. You may
+    want to add appropriate key mappings for visual mode (see
+    <tt>:help vmap</tt>).
+</p>
+<h2>
+    Commenting
+</h2>
+<p>
+    I use the <a href=
+    "http://vim.sourceforge.net/scripts/script.php?script_id=23">Enhanced
+    Commentify Plugin</a> for easy commenting of blocks.
+</p>
+<h2>
+    vimrc (lots of fun stuff)
+</h2>
+<p>
+    The most important thing is of course <a href=
+    "/vim/vhdl/vimrc">the .vimrc file</a> itself. It provides
+    useful stuff like
+</p>
+<ul>
+    <li>automatic template loading
+    </li>
+    <li>Hit F5 to compile and Vim automatically jumps to the
+    relevant line if there is an error (requires a Makefile and you
+    may need to adjust the errorformat)
+    </li>
+    <li>jump between errors with F9 and F10 (also goes nicely with
+    grep, btw.)
+    </li>
+    <li>shortcuts (e.g. write a process name and hit CTRL-E p to
+    create the process body; hit CTRL-j to jump to the mark
+    (requires <a href="/vim/vhdl/jump.vim">the jump-function</a>
+    from the <a href="http://vim-latex.sourceforge.net/">vim-latex
+    plugin</a>))
+    </li>
+    <li>abbreviations (e.g. write slv for std_logic_vector)
+    </li>
+    <li>shortcuts for component declaration and instantiation
+    </li>
+    <li>omni-completion is set to syntax-complete
+    </li>
+    <li>automatically update sensitivity lists (this one is a bit
+    dangerous, as it uses the <a href=
+    "http://www.iis.ee.ethz.ch/~zimmi/emacs/vhdl-mode.html">Emacs
+    VHDL-mode</a> and runs Emacs in batch mode - see the comment in
+    the vimrc) file
+    </li>
+</ul>
+<p>
+    If you want to know more, just take a look at the <a href=
+    "/vim/vhdl/vimrc">the .vimrc file</a>. This one only contains
+    VHDL related settings.
+</p>
+<h2>
+    Screenshot
+</h2>
+<p>
+    Here's a nice screenshot with some of the features:
+</p>
+<p>
+    <img src="/vim/vhdl/screenshot.png" alt="Vim rocks!" title=
+    "" />
+</p>
+<p>
+    If you have questions or comments, just drop me a note.
+</p>
+
+<!-- end content -->
+</div>
+</div>
+<div id="sidebar"> 
+<div id="updates" class="bluebox">
+<!-- start sidebar -->
+<h4>
+    Tools
+</h4>
+<h5>
+    Navigation
+</h5>
+<ul>
+    <li>
+        <a href="/sitemap/">Sitemap</a>
+    </li>
+</ul>
+
+<!-- end sidebar -->
+</div>
+</div>
+<div style="clear: both;">&nbsp;</div>
+</div>
+<div id="footer">
+<p>Last edited <span class="date">Tue Mar  2 22:59:50 2010</span>.</p>
+<p>Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+</div>
+</body>
+</html>

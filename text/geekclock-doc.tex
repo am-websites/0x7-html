@@ -1,0 +1,441 @@
+\documentclass[a4paper,11pt]{article}		%Artikel Dokumentvorlage
+\usepackage[ngerman]{babel}			%neue deutsche Rechtschreibung
+\usepackage[latin1]{inputenc}			%latin1 Zeichensatz: damit ae,oe,ue direkt in den Text geschrieben werden koennen
+\usepackage{footnpag}				%Fussnotennummerierung beginnt auf jeder neuen Seite mit 1..
+\usepackage{multicol}					%erlaubt mehrspaltige Dokumente
+\usepackage{textcomp}				%einige zusaetzliche Zeichen
+\usepackage{amsfonts}				%zusaetzliche Schriften
+\usepackage[pdftex,pageanchor=false,colorlinks=false,pdfborder=0]{hyperref}
+\usepackage{graphicx}
+
+\newcommand{\myhref}[1]{\href{#1}{\texttt{#1}}}	%link text ist link
+\renewcommand{\labelitemii}{$\ast$}
+\renewcommand{\d}{\mathrm{d}}
+
+\title{Geekclock und Elektronik - Dokumentation}
+\author{Andreas M\"uller}
+\date{\today}
+\begin{document}
+
+\maketitle\vspace{0.5cm}
+\abstract{In diesem Artikel werden einige Grundlagen für das Bauen elektronischer Schaltungen erklärt und technische Details der Geekclock (original und simplified), sowie deren Aufbau und Programmierung beschrieben.}
+\vspace{8cm}
+\begin{center}
+\begin{minipage}{3.5cm}\includegraphics[scale=0.3]{pics/cc.png}\end{minipage}
+\begin{minipage}{6.5cm}\fontsize{5}{6}\selectfont This work is licensed under the Creative Commons Attribution 2.5 License. To view a copy of this license, visit http://creativecommons.org/licenses/by/2.5/ or send a letter to Creative Commons, 543 Howard Street, 5th Floor, San Francisco, California, 94105, USA.\end{minipage}
+\end{center}
+\newpage
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+\section{Elektronik - Grundlagen}
+Es werden hier nur die grundlegendsten Dinge angesprochen. Für Details sei auf die Wikipedia (Kategorien Elektrotechnik \cite{wikipedia_elektrotechnik}, Bauteile \cite{wikipedia_bauelemente}) verwiesen.
+\subsection{Stromkreis}
+\begin{center}\includegraphics[scale=0.3]{pics/circuit.png}\end{center}
+\begin{itemize}
+	\item Strom fliesst nur in einem geschlossen Stromkreis
+	\item im Beispiel sind die LED und der Widerstand in Serie geschaltet
+	\begin{itemize}
+		\item im ganzen Stromkreis fliesst der gleich Strom
+		\item nicht an jedem Element fällt die gleiche Spannung ab
+		\item bei einer Parallelschaltung wäre es umgekehrt
+	\end{itemize}
+\end{itemize}
+\subsection{Ohmsches Gesetz}
+Das Ohmsche Gesetz ist das Grundgesetz der Elektrotechnik. Es besagt, dass die Spannung über einem idealen Widerstand proportional ist, zum durch ihn fliessenden Strom:
+\[U=R*I\]
+mit Spannung $U$ (gemessen in Volt $[V]$), Strom $I$ (in Ampère $[A]$), Widerstand $R$ (in Ohm $[\Omega]$).
+\subsubsection{Beispiel}
+Um im obigen Beispiel den benötigten Vorwiderstand für die LED zu berechnen, falls die Batterie 4.5 Volt liefert und an der LED 2 Volt abfallen und man einen Strom von 10mA möchte, würde man zuerst die Spannung über dem Widerstand ermitteln (Differenz der Batterie- und Ledspannung: $U_R=4.5V-2V=2.5V$) und aus dem Ergebnis mit dem Ohmschen Gesetz den Widerstand berechnen:
+\[R=\frac{U}{I}=\frac{2.5V}{10mA}=\frac{2.5V}{0.01A}=250 \Omega\]
+Es würden also 250 Ohm benötigt.
+\subsection{Knotenpunkt- und Maschenregel}
+Zwei weitere wichtige Gesetze sind die Knotenpunkt- und die Maschenregel (Kirchhoff'sche Gesetze).
+\paragraph{Knotenregel:} Die Summe aller Ströme in einem Knoten ist Null ($\rightarrow$ es gehen keine Elektronen verloren).
+\paragraph{Maschenregel:} Die Summe aller Spannungen in einer Masche ist Null ($\rightarrow$ es fällt über einer idealen Leitung keine Spannung ab).
+\subsection{Ströme und Spannungen messen}
+\subsubsection{Spannungsmessung}
+\begin{center}\includegraphics[scale=0.3]{pics/circuit_voltage.png}\end{center}
+\begin{itemize}
+	\item Voltmeter auf \grqq{}V=\grqq{} (Gleichspannung)
+	\item bei unbekannter Spannung beim grössten Spannungsbereich mit Messen beginnen
+	\item eine Spannung wird immer über einem Bauteil gemessen (i.e. die Spannung, die am Bauteil abfällt)
+	\begin{itemize}
+		\item im Beispiel würde eine Messung zwischen $A$ und $B$ die Spannung über dem Widerstand ergeben
+		\item eine Messung über $B$ und $C$ die Spannung über der LED
+	\end{itemize}
+	\item ist das Multimeter auf Gleichspannung eingestellt, so kann beim Messen nicht viel schief gehen (grosser Innenwiderstand)
+\end{itemize}
+\subsubsection{Strommessung}
+\begin{center}\includegraphics[scale=0.3]{pics/circuit_current.png}\end{center}
+\begin{itemize}
+	\item Multimeter auf \grqq{}I=\grqq{} (Gleichstrom)
+	\item beim grössten Strombereich beginnen
+	\item der Stromkreis muss aufgetrennt werden
+	\item Messung zwischen $A$ und $B$ misst Strom im ganzen Kreis
+	\item ist das Multimeter auf Strommessung, so muss man aufpassen, keinen Kurzschluss zu produzieren, um nicht Bauteile oder das Multimeter zu zerstören
+	\begin{itemize}
+		\item würde man z.B. so wie im Beispiel der Spannungsmessung zwischen $A$ und $B$ messen, so wäre der Widerstand kurzgeschlossen und die LED würde zerstört
+		\item würde man zwischen $A$ und $C$ messen, so wären beide Elemente kurzgeschlossen und das Multimeter (oder zumindest dessen Sicherung, falls vorhanden) würde zerstört
+	\end{itemize}
+\end{itemize}
+\subsection{Bauteile}
+\subsubsection{Widerstand}
+\begin{itemize}
+	\item Symbol: $R$
+	\item Schaltzeichen: \includegraphics[scale=0.2]{pics/r.png}
+	\item Kenngrösse: Widerstand mit Einheit Ohm ($\Omega$)
+	\item Spannung über dem Widerstand ist proportional zum Stromfluss
+	\item grösserer Widerstand $\rightarrow$ kleinerer Strom fliesst
+	\item Farbcodierung gibt Widerstandswert an (siehe Anhang \ref{widerstandscodierung})
+	\item wir verwenden Reihe E12 mit max. 0.25 Watt Belastbarkeit und $\pm 5\%$ Toleranz
+	\item Einbaurichtung ist bei Widerständen egal
+	\item Beispiele für Farbcodierung:
+	\begin{itemize}
+		\item rot-rot-braun-gold: 220 Ohm
+		\item rot-violett-braun-gold: 270 Ohm
+		\item gelb-violett-braun-gold: 470 Ohm
+		\item braun-schwarz-orange-gold: 10 kOhm
+	\end{itemize}
+\end{itemize}
+\subsubsection{Kondensator}
+\begin{itemize}
+	\item Symbol: $C$
+	\item Schaltzeichen: \includegraphics[scale=0.2]{pics/c.png}
+	\item Kenngrösse: Kapazität mit Einheit Farad ($F$)
+	\item Schaltzeichen für Elektrolytkondensatoren: \includegraphics[scale=0.2]{pics/cpol.png}
+	\item speichert Strom
+	\item zeitliche Änderung der Spannung über dem Kondensator proportional zum Stromfluss:  \[i=C\frac{\d u}{\d t}\]
+	\item Einbaurichtung nur bei Elektrolytkondensator relevant
+	\item Werte sind meist direkt aufgedruckt
+	\item Vorsilbe für Grössenordung wird als Komma wiederverwendet
+	\begin{itemize}
+		\item $2n2=2.2nF=2.2*10^{-9} F$
+		\item $\mu33=0.33\mu F$
+	\end{itemize}
+	\item bei kleineren Werten ist oft nur eine Zahl aufgedruckt; dann bezieht sich der Wert auf PicoFarad und die letzte Ziffer gibt die Anzahl Nullen an
+	\begin{itemize}
+		\item $103=10nF$
+		\item $221=220pF$
+		\item $xyz=xy*10^z pF$
+	\end{itemize}
+	\item Toleranzen zu den aufgedruckten Werten ca -10\% bis +50\%
+\end{itemize}
+\subsubsection{Diode und Leuchtdiode (LED)}
+\begin{itemize}
+	\item Symbol: $D$
+	\item Schaltzeichen: \includegraphics[scale=0.2]{pics/d.png} bzw. \includegraphics[scale=0.2]{pics/led.png} (LED)
+	\item Dioden lassen Strom nur in eine Richtung durch
+	\item Einbaurichtung (Polarität) beachten
+	\begin{itemize}
+		\item Dioden haben Ring bei Minus
+		\item LED's haben ein abgeflachtes Gehäuse bei Minus
+	\end{itemize}
+	\item LED: Light Emitting Diode
+	\item an LEDs verschiedener Farben fallen unterschiedliche Vorwärtsspannungen ab (erfordert passende Vorwiderstände)
+	\begin{itemize}
+		\item rot: $1.2-2V$
+		\item gelb: $2.1V$
+		\item grün: $2.5-3.5V$
+		\item blau: $3.3-4V$
+	\end{itemize}
+\end{itemize}
+\subsubsection{Quarz}
+\begin{itemize}
+	\item Symbol: $Q$
+	\item Schaltzeichen: \includegraphics[scale=0.2]{pics/q.png}
+	\item liefert Referenzfrequenz
+	\item Funktionsweise: Quarzplättchen mit angelegten Elektroden
+	\begin{itemize}
+		\item beim Anlegen einer Spannung verbiegt sich der Quarz
+		\item nach Entfernen der Spannung verbiegt er sich zurück und produziert eine Spannung
+		\item positive Rückkoppelung nur bei der Resonanzfrequenz und bei Harmonischen davon
+	\end{itemize}
+\end{itemize}
+\subsubsection{Der ATMega8 Mikrocontroller}
+\begin{itemize}
+	\item Ein Mikrocontroller ($\mu C$, MCU) ist ein CPU mit RAM, ROM und Peripherie auf einem Chip
+	\item einige Features des ATMega8
+	\begin{itemize}
+		\item RISC Architektur, bis 16 MHz Taktfrequenz
+		\item In-System programmierbar
+		\item integrierte AD-Wandler
+		\item integrierte Timer (wird für Geekclock verwendet)
+		\item max. 23 Pins für I/O verwendbar
+		\item Stromverbrauch 3mA
+		\item Sleep Mode
+		\item kann mit GCC programmiert werden 
+		\begin{itemize}
+			\item Tutorial unter \cite{avr-gcc-tutorial}
+		\end{itemize}
+		\item avr-libc mit Standardfunktionen verfügbar \cite{avr-libc}
+	\end{itemize}
+	\item Datenblatt mit weiteren Infos unter \cite{atmega8_datasheet}
+	\item Pinbelegung siehe Anhang \ref{atmega8_pinout}
+\end{itemize}
+
+\section{Löten}
+\subsection{Allgemeine Tipps}
+\begin{itemize}
+	\item Nicht nur den Zinn mit dem Lötkolben erhitzen, sondern auch den Anschluss des Bauteils sowie die Leiterplatte. Die Metalle (Zinn und Kupfer) können sich nur verbinden, wenn sie die gleiche Temperatur haben  (dies ist vermutlich der wichtigste Punkt überhaupt).
+	\item Zinn nicht auf die Lötspitze, sondern immer direkt an die Leitstelle geben.
+	\item Nicht zuviel Zinn verwenden (schafft Kurzschlüsse und erschwert allfälliges Entlöten).
+	\item Empfindliche Bauteile möglichst schnell verlöten.
+	\item Um Bauteile auf Leiterplatte zu befestigen, Beinchen umbiegen (erschwert allerdings ggf. das Entlöten).
+\end{itemize}
+\subsection{Reihenfolge beim Auflöten}
+\begin{itemize}
+	\item unempfindliche Bauteile zuerst: Widerstände, Sockel, Kabel
+	\item niedrige Bauteile vor hohen Bauteilen
+	\item Bauteile, die durch Hitze beschädigt werden zuletzt: Transistoren, Quarze, Mikrocontroller
+\end{itemize}
+\subsection{Gute/schlechte Lötstellen}
+\begin{minipage}{2.2cm}
+	\includegraphics[scale=0.3]{pics/loeten_gut.png} \\ gut \\ ~ \\ ~
+\end{minipage}
+\begin{minipage}{3.2cm}
+	\includegraphics[scale=0.3]{pics/loeten_zinn.png} \\ schlecht: \\ zuviel Zinn \\ $\to$ kann abbrechen
+\end{minipage}
+\begin{minipage}{3.2cm}
+	\includegraphics[scale=0.3]{pics/loeten_leiterbahn.png} \\ schlecht: \\ Leiterbahn zu kalt \\ $\to$ kein Kontakt
+\end{minipage}
+\begin{minipage}{3cm}
+	\includegraphics[scale=0.3]{pics/loeten_draht.png} \\ schlecht: \\ Draht zu kalt \\ $\to$ kein Kontakt
+\end{minipage}
+
+\section{Gehäuse bauen}
+Die meisten benötigten Materialien können in Handwerkshops gefunden werden.
+\subsection{Holz}
+\begin{itemize}
+	\item leicht zu bearbeiten 
+	\item elektrisch isolierend
+	\item Beschriftung kann direkt mit dem Lötkolben eingebrannt werden
+	\item Schrauben gegenüber Leim bevorzugt verwenden (gilt für alle Materialien)
+\end{itemize}
+\subsection{Plexiglas}
+\begin{itemize}
+	\item schöne optische Effekte, z.B. bei abgeschrägten Kanten
+	\item elektrisch isolierend
+	\item kann gebrochen werden (einfacher als sägen!)
+	\begin{itemize}
+		\item entlang Sollbruchstelle auf beiden Seiten kräftig einritzen
+		\item über einer harten Kante (z.B. eckige Tischkante) brechen
+	\end{itemize}
+\end{itemize}
+\subsection{Metalle}
+\begin{itemize}
+	\item elektrisch leitend
+	\begin{itemize}
+		\item schirmt elektromagnetische Felder ab
+		\item aufpassen, dass keine Kurzschlüsse entstehen
+	\end{itemize}
+	\item Aluminium ist meist das bevorzugte Metall (einfach zu verarbeiten, geringes Gewicht, geringe Kosten)
+	\item bitte keine Holzschrauben für Metalle verwenden!
+\end{itemize}
+
+\section{Softwareumgebung für AVR MCUs}
+Zur Programmierung des ATMega8 können angepasste Versionen des gcc, der GNU libc und der GNU binutils verwendet werden. Zum Übertragen der Daten wird \texttt{uisp} verwendet.
+Unter Linux gibt es bei vielen Distributionen bereits die nötigen Packages (meist unter den Namen avr-gcc, avr-libc, avr-binutils und uisp). Die Installation ist von der Distribution abhängig:
+	\begin{itemize}
+		\renewcommand{\labelitemii}{\#}
+		\item Gentoo 
+		\begin{itemize}
+			\item \texttt{emerge uisp avr-libc crossdev}
+			\item \texttt{crossdev -t avr}
+		\end{itemize}
+		\item Debian
+		\begin{itemize}
+			\item \texttt{apt-get install uisp avr-libc binutils-avr gcc-avr}
+		\end{itemize}
+		\item etc
+	\end{itemize}
+
+\section{Geekclock original}
+\subsection{Hardware}
+\begin{center}\includegraphics[scale=0.55]{../hardware/original/schema.png}\end{center}
+\begin{itemize}
+	\item Kernstück ist der ATMega8 Mikrocontroller
+	\item Quarz stabilisiert Takt auf exakt 4 MHz
+	\item Oben links befindet sich ein Spannungsregulator (7805). Dieser sorgt dafür, dass am ATMega8 bei Eingangsspannung von 7-30Volt immer genau 5 Volt anliegen.
+	\item Die vorgeschaltete Diode schützt vor verkehrt herum angelegter Versorgungsspannung (diese könnte den MCU zerstören).
+	\item Rechts unten befindet sich die Schnittstelle für Programmierung über den Parallelport, mit vorgeschalteten Schutzwiderständen.
+\end{itemize}
+\subsection{Software}
+\begin{itemize}
+	\item Zuerst werden die Pins initialisiert, damit sie als Output verwendet werden können
+	\item Ausserdem wird der Hardwaretimer so initialisiert, dass ein Interrupt pro Sekunde generiert wird.
+	\item Danach führt die Hauptroutine eine Endlosschleife aus. 
+	\item Die restlichen Aktionen finden in der Interruptbehandlungsroutine statt
+	\item Bei jedem Interrupt werden die Zeitvariablen erhöht und die LEDs angepasst
+\end{itemize}
+\subsection{Aufbau}
+\begin{itemize}
+	\item zuerst alles zusammenlöten, MCU noch weglassen
+	\begin{itemize}
+		\item der Quarz und die zugehörigen Kondensatoren sollten sich physisch möglichst nahe am MCU befinden
+	\end{itemize}
+	\item Spannungen testen; nur bei korrekten Spannungen (5V von VCC zu GND, \textbf{nicht} -5V) MCU einstecken
+	\item Programmierkabel gemäss Anhang \ref{prog_kabel} zusammenbauen
+	\item Geekclock- und Ledtest-Code kompilieren (\texttt{make})
+	\item avrledtest laden (\texttt{make load\_avrledtest})
+	\item Falls dabei ein Fehler auftritt, folgendes prüfen
+	\begin{itemize}
+		\item sind die richtigen Pins vom LPT mit dem MCU verbunden?
+		\item hat der MCU genau 5V?
+		\item evtl. ist die parallele Schnittstelle zu schwach. Dann sollte der 220 Ohm Widerstand zwischen MISO und Busy überbrückt werden
+		\item ist der MCU defekt?
+		\item bei der Fehlersuche ist es hilfreich, verschiedene Kabel, PCs und MCUs auszuprobieren
+		\item falls es in der Umgebung viele elektromagnetische Felder gibt, so kann ein zusätzlicher 10nF Kondensator am MCU zwischen VCC und Masse helfen (dieser sollte nahe am MCU sein)
+	\end{itemize}
+	\item fuses \textbf{korrekt} setzen (falsche Fuse Bits können den MCU unbrauchbar machen) %High Bit = d9, Low Bit=ef für 4MHz Quarz
+	\begin{itemize}
+		\item Befehle: 
+		\begin{itemize}
+			\item \texttt{uisp -drop=dapa -dlpt=0x378 --rd\_fuses}
+			\item das High Bit ist vermutlich bereits d9, ansonsten:\\ \texttt{uisp -drop=dapa -dlpt=0x378 --wr\_fuse\_h=d9}
+			\item \texttt{uisp -drop=dapa -dlpt=0x378 --wr\_fuse\_l} 
+		\end{itemize}
+		\item die Schaltung funktioniert jetzt nur noch mit dem Quarz
+		\item falls \texttt{make load\_avrledtest} vorher funktionierte, aber jetzt nicht mehr will, so ist vermutlich der Quarz nicht richtig mit dem MCU verbunden
+		\item mit einem Oszilloskop kann man die 4MHz am Quarz messen
+		%\item wenn man statt C4 einen variablen Kondensator von 15-25pF einbaut, kann mit einem Frequenzzähler die Frequenz noch genauer auf 4MHz eingestellt werden (allerdings ist der Frequenzzähler meist auch quarzbasiert :)
+	\end{itemize}
+
+	\item geekclock laden (\texttt{make load})
+	\item Programm beliebig abändern und neu laden
+	\item Eichen: Zeitabweichung messen und an der entsprechenden Stelle in der Software (bei der Interruptbehandlung)  korrigieren
+\end{itemize}
+
+\section{Geekclock simplified}
+Die zweite Version der Geekclock ist gegenüber der ersten deutlich vereinfacht und hat den Vorteil, dass der Stromverbrauch klein genug ist für Batteriebetrieb.
+\subsection{Hardware}
+\begin{center}\includegraphics{../hardware/simplified/schema.png}\end{center}
+Hauptunterschied gegenüber der ersten Version ist der Quarz. Statt 4MHz wird nun ein Uhrenquarz mit 32768 Hz verwendet. Damit steht zwar deutlich weniger Rechenleistung zur Verfügung, doch es wird sich zeigen, dass trotzdem einiges möglich ist. Als weitere Vereinfachungen wurden der Pull-Up Widerstand für Reset und die Kondensatoren für den Quarz weggelassen. Beides kann im ATMega8 intern aktiviert werden.
+\par Der grosse Vorteil der sehr kleinen Taktfrequenz ist, dass der MCU nur noch sehr wenig Strom braucht ($20-30\mu A$ -- damit wird eine Batterielebensdauer von mehreren Jahren erreicht). Dies liegt daran, dass bei CMOS Logik im statischen Zustand kein Strom fliesst. Der Stromverbrauch ist also davon abhängig, wie oft die einzelnen Gatter umgeschaltet werden (beim Umschalten wird jedes mal die Gatekapazität ge- oder entladen).
+Die LEDs werden bei dieser Version nur auf Knopfdruck aktiv, da sie für Dauerbetrieb zuviel Strom verbrauchen.
+\paragraph{Bauteilliste}
+\begin{itemize}
+	\item B1 -- 4.5V Flachbatterie
+	\item IC1 -- ATMega8 oder ATMega8L
+	\item Q1 -- Quarz, 32768 Hz
+	\item C1 -- Kondensator, 100nF
+	\item S1 -- Taster
+	\item R1-R6 -- Widerstände, $100-270\Omega$ (abhängig von LED-Farbe)
+	\item R7,R9 -- Widerstände, $470\Omega$
+	\item R8 -- Widerstand, $220\Omega$
+	\item LED1-6 -- Leuchtdioden
+	\item D1 -- Siliziumdiode, 1N4148
+	\item JP1 -- Buchsenleiste
+\end{itemize}
+
+\subsection{Software}
+Die Software ist ähnlich wie beim Original: Beim Einschalten des Chips wird der Timer so initialisiert, dass sich jede Sekunde ein Interrupt ereignet; in der Interruptbehandlungsroutine wird entsprechend die Zeit angepasst. Der Sourcecode und ein Makefile befinden sich im Verzeichnis \texttt{software/simplified}:
+\begin{itemize}
+	\item \texttt{geekclock.c} (Hauptcode): Enthält Interruptbehandlungen und main-Routine
+	\item \texttt{lowlevel.c}: Enthält Initialisierung (Timer, Ports) und lowlevel Funktionen (\texttt{delay\_ms()}, \texttt{button\_down()}, \texttt{set\_leds()})
+	\item \texttt{datetime.c}: Kalenderfunktionen (\texttt{is\_leap\_year()})
+	\item \texttt{led.c}: LED-Ansteuerung und Effekte
+\end{itemize}
+
+\subsection{Aufbau}
+\begin{center}\includegraphics[scale=0.8]{../hardware/simplified/board.png}\end{center}
+\begin{itemize}
+	\item IC-Sockel, Widerstände, Leuchtdioden, Drähte und Büroklammern für den Batterieanschluss anlöten
+	\item zuletzt den Quarz auflöten (temperaturempfindlich!)
+	\item Batterie anschliessen, Spannung im Sockel testen (\textbf{+}4.5V zwischen VCC und GND im Sockel?), Batterie wieder entfernen
+	\item IC (ATMega8) einstecken (Beine müssen evtl. vorher zurechtgebogen werden)
+	\item Programmierkabel anschliessen
+	\item Software übersetzen (\texttt{make} im Verzeichnis \texttt{software/simplified})
+	\item avrledtest laden (\texttt{make load\_avrledtest})
+	\item Schalter testen (sollt Blinken auf einzelne LEDs umstellen)
+	\item Fuses setzen (\texttt{make write\_fuses\_32khz}); nun verwendet der MCU den externen Quarz zur Taktgenerierung und funktioniert nicht mehr ohne
+	\item Software für Geekclock laden (\texttt{make load})
+	\item Stromverbrauch messen (muss $<100\mu A$ sein)
+	\item einige Tage laufen lassen und Drift messen; entsprechenden Ausgleichswert in der Software eintragen und \texttt{make;make load} ausführen
+\end{itemize}
+Die Uhr kann nun beliebig umprogrammiert oder erweitert werden. Es ist auch eine komplett neue Funktionalität möglich (z.B. Stoppuhr oder elektronischer Würfel).
+
+\appendix
+\section{Widerstandscodierung}\label{widerstandscodierung}
+Die Widerstände der Reihe E12 haben 4 Ringe, von denen die ersten 3 den Wert (zwei Ziffern und Multiplikator) und der vierte die Toleranz angeben. Der Multiplikator kann auch direkt als Anzahl an die Ziffern angehängte Nullen abgelesen werden.\\
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\hline
+& 1. Ring & 2. Ring & 3. Ring & 4. Ring \\ \hline
+ Farbe & 1. Ziffer & 2. Ziffer & Multiplikator & Toleranz \\ \hline \hline
+schwarz & 0 & 0 & 1 & \\
+braun & 1 & 1 & 10 & $\pm1\%$\\
+rot & 2 & 2 & 100 & $\pm2\%$\\
+orange & 3 & 3 & 1000 & \\
+gelb & 4 & 4 & $10^4=10'000$ & \\
+grün & 5 & 5 & $10^5=100'000$ & \\
+blau & 6 & 6 & $10^6=1'000'000$ & \\
+violett & 7 & 7 & $10^7=10'000'000$ & \\
+grau & 8 & 8 & $10^8$ & \\
+weiss & 9 & 9 & $10^9$ & \\
+silber & - & - & 0.01 & $\pm10\%$ \\
+gold & - & - & 0.1 & $\pm5\%$\\
+\end{tabular}
+\end{center}
+
+\section{Grössenordnungen bei Einheiten}
+\begin{center}
+\begin{tabular}{c|c|c}
+Vorsatz & Zeichen & Faktor \\ \hline 
+Exa & $E$ & $10^{18}$ \\ 
+Peta & $P$ & $10^{15}$ \\ 
+Tera & $T$ & $10^{12}$ \\ 
+Giga & $G$ & $10^9$ \\ 
+Mega & $M$ & $10^6$ \\ 
+Kilo & $K$ & $10^3$ \\ \hline
+Milli & $m$ & $10^{-3}$ \\
+Mikro & $\mu$ & $10^{-6}$ \\
+Nano & $n$ & $10^{-9}$ \\
+Pico & $p$ & $10^{-12}$ \\
+Femto & $f$ & $10^{-15}$ \\
+Atto & $a$ & $10^{-18}$ \\
+\end{tabular}
+\end{center}
+
+\section{Programmierkabel} \label{prog_kabel}
+Das Programmierkabel besteht nur aus einem LPT-Verbindungskabel. Es werden folgende Pins verbunden (Reihenfolge auf Jumper von oben nach unten).\\
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline Pin ATMega8 & Pin auf Jumper & Pin LPT \\ \hline \hline
+1 (Reset) & 1 & 16 (Init) \\ \hline
+17 (MOSI) & 2 & 2 (D0) \\ \hline
+18 (MISO) & 3 & 11 (Busy) \\ \hline
+19 (SCK) & 4 & 1 (Strobe) \\ \hline
+8 (GND) & 5 & 18 (GND) \\ \hline
+\end{tabular}
+\end{center}
+~\\
+Die Pins auf den LPT-Steckern sind übrigens oft beschriftet, was sehr praktisch ist.
+
+\section{Layout des ATMega8}\label{atmega8_pinout}
+\begin{center}\includegraphics[scale=0.4]{pics/atmega8_pinout.png}\end{center}
+\section{Links}
+\begin{thebibliography}{30}
+\bibitem{wikipedia_elektrotechnik} \myhref{http://de.wikipedia.org/wiki/Kategorie:Elektrotechnik}\\
+Wikipedia Kategorie Elektrotechnik
+\bibitem{wikipedia_bauelemente} \myhref{http://de.wikipedia.org/wiki/Kategorie:Elektrische\_Bauelemente}\\
+Wikipedia Kategorie Elektrische Bauelemente
+\bibitem{atmega8_datasheet} \myhref{http://www.atmel.com/dyn/resources/prod\_documents/doc2486.pdf}\\
+Datenblatt des ATMega8
+\bibitem{avr-gcc-tutorial} \myhref{http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial}\\
+AVR-GCC Tutorial auf mikrocontroller.net
+\bibitem{avr-libc} \myhref{http://www.nongnu.org/avr-libc/user-manual/}\\
+avr-libc Dokumentation
+\bibitem{linuxfocus_atmega} \myhref{http://www.tldp.org/linuxfocus/Deutsch/November2004/article352.shtml}\\
+Einführung für den ATMega8 von Linuxfocus
+\bibitem{atmega_dcpower} \myhref{http://www.tuxgraphics.org/electronics/200506/article379.shtml}\\
+Artikel über eine digitale Laborspannungsversorgung mit dem ATMega8
+\bibitem{me} \myhref{http://people.ee.ethz.ch/$\sim$andrmuel/}\\
+Meine Website -- auch einige Mikrokontrollerprojekte :-)
+\bibitem{radig} \myhref{http://www.ulrichradig.de/}\\
+Website mit einigen interessanten ATMega Projekten, u.a. einem kompletten Webserver
+\end{thebibliography}
+
+\end{document}

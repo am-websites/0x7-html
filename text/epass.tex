@@ -1,0 +1,507 @@
+% vim: spelllang=de
+\documentclass{beamer}
+\usepackage[ngerman]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{helvet}
+
+\usetheme{Frankfurt} % Warsaw is nice, too
+
+\newcommand{\myhref}[1]{\href{#1}{\texttt{#1}}}	%link text ist link
+
+\title[]{Biometrische Ausweise}
+\subtitle{Technische Funktionsweise, Probleme und Angriffe}
+\author{Andreas Müller}
+\date{Chaostreff Zürich vom 11.03.2009}
+%\institute{ETH - ITET}
+
+\AtBeginSection[]{\frame{\tableofcontents[current,sectionstyle=show/shaded,subsectionstyle=show/show/hide]}}
+\setbeamercovered{transparent=50}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+\setcounter{tocdepth}{1}
+\frame[plain]{\tableofcontents}
+\setcounter{tocdepth}{2}
+
+\section{Einführung}
+
+\subsection{Biometrie}
+\begin{frame}
+	\frametitle{Was ist Biometrie?}
+	\begin{block}{Wikipedia:}
+		Die Biometrie beschäftigt sich mit Messungen an Lebewesen und den dazu
+		erforderlichen Mess- und Auswerteverfahren.
+		\\
+		$[..]$
+		\\
+		Heute definiert man Biometrie im Bereich der Personenerkennung auch
+		als automatisierte Erkennung von Individuen, basierend auf ihren
+		Verhaltens- und biologischen Charakteristika.
+	\end{block}
+	\begin{block}{Merkmale:}
+		Unterschrift, Fingerabdrücke, Sprache, Gang, DNA, Körpergeruch,
+		Gesicht, \ldots
+	\end{block}
+\end{frame}
+
+\subsection{RFID}
+\begin{frame}
+	\frametitle{Was ist RFID?}
+	\begin{block}{RFID}
+		\begin{itemize}
+			\item Radio Frequency Identification: Identifizierung (von
+				Menschen, Tieren oder Produkten) mit Hilfe eines Funkchips.
+			\item Ursprünglich nur Speicherung einer ID, heute ganze Computer
+				mit OS, Crypto-Coprozossor, RAM, etc.
+			\item Meist passiv (Leser versorgt Tag mit Energie), für grössere
+				Reichweiten auch aktiv (Tag mit Batterie)
+			\item Einsatzgebiete: Bezahlsysteme, Tickets, Hunde,
+				Diebstahlsicherung, Müllentsorgung, \ldots
+			\item Relevante Spezifikationen
+			\begin{itemize}
+				\item ISO 10536 (Close Coupling) (ca 1cm)
+				\item ISO 14443 (Proximity Coupling) (10-15cm)
+				\item ISO 15693 (Vicinity Coupling) (bis 1.5m)
+			\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{ISO 14443 (z.B. E-Pässe)}
+	\begin{block}{ISO 14443}
+		\begin{itemize}
+			\item Träger: 13.56 MHz
+			\item ASK (Amplitudenumtastung)
+			\item Lastmodulation: Seitenbänder: 13.56MHz$\pm$847kHz
+			\item Anticollision
+		\end{itemize}
+	\end{block}
+	\begin{block}{E-Pässe}
+		\begin{itemize}
+			\item Spezifiziert von der ICAO (International Civil Aviation
+				Organisation; eine Unterorganisation der UN)
+			\item Implementierung variiert von Land zu Land; einzelne Teile
+				der Spezifikation sind optional
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Auslesedistanz}
+\begin{frame}
+	\frametitle{Auslesedistanz bei RFID nach ISO 14443 -- Aktiv}
+	\begin{block}{Konfusion}
+		Aktives Auslesen $\leftrightarrow$ Passives Mithören
+	\end{block}
+	\begin{block}{Aktives Auslesen}
+		\begin{itemize}
+			\item Leser muss Tag mit Energie versorgen
+			\item Linear grösserer Abstand $\to$ polynomial grössere Fläche der Antenne oder Energie
+			\begin{itemize}
+				\item skaliert nur begrenzt
+			\end{itemize}
+			\item Maximale Distanz:
+				\begin{itemize}
+					\item Spezifikation: ca 10 cm
+					\item Hancke\cite{hancke-practical-attacks}: 15 cm 
+					\item Kirschenbaum/Wool \cite{kirschenbaum-wool}: 25cm
+					\item Kfir/Wool \cite{kfir-wool}: 40-50cm (Simulationen)
+					\item Fragwürdige Medienberichte: mehrere Meter $\to$ oft anderer Frequenzbereich (z.B. UHF) oder passives Mithören gemeint
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Auslesedistanz bei RFID nach ISO 14443 -- Passiv}
+	\begin{block}{Passives Mithören}
+		\begin{itemize}
+			\item Reader $\to$ Tag:
+				\begin{itemize}
+					\item sehr starkes Feld, da auch Energieversorgung
+					\item[] [Demo mit RFID Armband und Kurzwellen-Radio]
+					\item Mithören auch aus grösseren Distanzen kein Problem
+				\end{itemize}
+			\item Beide Richtungen:
+				\begin{itemize}
+					\item Problematisch ist Tag $\to$ Reader
+					\item Seitenträger rund 60-80dB schwächer als Träger $\to$ gute Filter im Empfänger nötig
+					\item Distanz:
+						\begin{itemize}
+							\item BSI \cite{bsi-lesedistanz}: 2m ohne Probleme, ab 3m nur mit mehreren Messungen 
+							\item Hancke \cite{hancke-practical-attacks}: 4m
+						\end{itemize}
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Ausweise in der Schweiz}
+
+\subsection{Maschinenlesbar vs elektronisch}
+\begin{frame}
+	\frametitle{MRTD und E-Pass}
+	\begin{block}{Maschinenlesbar vs elektronisch}
+		\begin{itemize}
+			\item MRTD: Machine Readable Travel Document -- ein
+				maschinenlesbares Reisedokument mit MRZ; dieses muss nicht
+				zwingend auch einen RFID Chip enthalten
+			\item MRZ: Maschine Readable Zone -- Text in einer speziellen
+				Schrift, der auch von einem Computer mittels Scanner und OCR
+				gelesen werden kann
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Identitätskarte}
+\begin{frame}
+	\frametitle{Identitätskarte}
+	\begin{block}{Identitätskarte}
+		\begin{itemize}
+			\item Aktuell nur MRZ
+			\item \grqq{}Ob und wann es eine Identitätskarte geben wird, in
+				der Daten zur Person elektronisch gespeichert sind, ist noch
+				nicht entschieden.\grqq{} (Informationsseite des Bundes)
+			\item Ausweisgesetz ist allgemein gehalten
+			\item[$\to$] Bundesrat entscheidet das Vorgehen und passt ggf. die
+				Ausweisverordnung an
+			\item .de: Elektronischer Personalausweis auch als Dienstleistung
+				für die Wirtschaft (elektronischer Identitätsnachweis und
+				Signatur)
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Pässe}
+\begin{frame}
+	\frametitle{Pässe}
+	\begin{block}{Pässe}
+		\begin{itemize}
+			\item Pass 85
+				\begin{itemize}
+					\item veraltet
+				\end{itemize}
+			\item Pass 03
+				\begin{itemize}
+					\item maschinenlesbar aber kein RFID Chip
+					\item hoher Sicherheitsgrad
+				\end{itemize}
+			\item \textbf{Pass 06}
+				\begin{itemize}
+					\item maschinenlesbar und RFID Chip mit den gleichen
+						Daten wie der Pass (inkl. Photo)
+					\item zeitlich befristetes Pilotprojekt
+				\end{itemize}
+			\item \textbf{Pass 10}
+				\begin{itemize}
+					\item maschinenlesbar und RFID Chip mit zusätzlichen Daten
+						(Fingerabdrücke beider Zeigfinger)
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\section{Sicherheitsmerkmale und Angriffe}
+
+\subsection{Passive Authentication}
+\begin{frame}
+	\frametitle{Passive Authentication (Pass 06: Ja; Pass 10: Ja)}
+	\begin{block}{Verfahren}
+		\begin{itemize}
+			\item Signatur mit Länderzertifikat 
+			\item CH: DSA mit SHA1 \cite{about-mrtds-vaudenay}, sonst oft RSA
+			\item Länderzertifikate im Internet verfügbar
+		\end{itemize}
+	\end{block}
+	\begin{block}{Probleme}		
+		\begin{itemize}
+			\item Schützt explizit nicht gegen 1:1 Klonen
+			\item Seite mit Schweizer Länderzertifikat (www.bit.admin.ch) war
+				bis vor kurzem selbst durch ein abgelaufenes,
+				selbst-signiertes und ungültiges Zertifikat geschützt :-)
+				\begin{itemize}
+					\item inzwischen überhaupt kein gesicherter Zugang (https)
+						mehr
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\subsection{Basic Access Control (BAC)}
+\begin{frame}
+	\frametitle{Basic Access Control (Pass 06: Ja; Pass 10: Ja)}
+	\begin{block}{BAC: Verfahren}
+		\begin{itemize}
+			\item Art. 14b Ausweisverordnung: ``Damit auf den Inhalt des
+				Datenchips zugegriffen werden kann, muss die maschinenlesbare
+				Zone des biometrischen Passes auf ein dazu bestimmtes
+				Lesegerät platziert werden.''
+			\item Key aus Passnummer, Geburtsdatum, Ablaufdatum
+			\item 3DES, CBC-MAC -- \grqq{}as if we were still in the
+				1980s\grqq{} \cite{e-passport-threats}
+		\end{itemize}
+	\end{block}
+	\begin{block}{BAC: Probleme}
+		\begin{itemize}
+			\item Daten sind leicht herauszufinden oder zu erraten
+			\item Max 56 Bit Entropie \cite{juels-molnar-wagner}
+			\item Offline Brute Force \cite{e-passport-threats}
+			\item Brute Force \grqq{}in ein paar Stunden\grqq{} \cite{about-mrtds-vaudenay}
+				% Szenario: COPACOBANA (10'000$): 64Bit DES in <1Woche
+				% -> im Cafe am Flughafen sitzen, Leser->Pass aus Distanz
+				%  mithören, MRZ zu Hause (remote via Inet) offline brechen,
+				%  10 Sekunden am nächsten Kiosk, etc. neben den Passbesitzer
+				%  stehen
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Active Authentication (AA)}
+\begin{frame}
+	\frametitle{Active Authentication (Pass 06: Nein; Pass 10: Ja)}
+	\begin{block}{Verfahren}
+		\begin{itemize}
+			\item RSA 
+			\item Privater Key im Pass kann nicht ausgelesen werden
+			\item Public Key auf dem Pass (mit Zertifikat signiert)
+			\item Challenge wird vom Pass mit Private Key signiert
+			\item Soll Klonen des Passes verhindern
+		\end{itemize}
+	\end{block}
+	\begin{block}{Probleme}
+		\begin{itemize}
+			\item ? 
+			\item Sicherheit hängt auch von der Sicherheit der Passive
+				Authentication ab
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Extended Access Control (EAC)}
+\begin{frame}
+	\frametitle{Extended Access Control (Pass 06: Nein; Pass 10: Ja)}
+	\begin{block}{Verfahren}
+		\begin{itemize}
+			\item Leser muss sich gegenüber dem Pass authentifizieren, um
+				besonders geschützte Daten (atm: Fingerabdrücke) auslesen zu
+				dürfen
+			\item Challenge-Response Verfahren mit RSA
+			\item RSA ist offen, verbreitet und i.A. zuverlässig
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}
+	\frametitle{Extended Access Control (Pass 06: Nein; Pass 10: Ja)}
+	\begin{block}{Probleme}
+		\begin{itemize}
+			\item \grqq{}Damit ein anderes Land die Fingerabdrücke überhaupt
+				lesen kann, muss es über die Berechtigung der Schweiz
+				verfügen. Der Bundesrat erteilt diese nur jenen Ländern, deren
+				Datenschutzniveau dem schweizerischen gleichwertig ist. Er
+				kann die Berechtigung auch anderen Stellen (z.B.
+				Fluggesellschaften) erteilen, die im öffentlichen Interesse
+				die Identität von Personen prüfen müssen.\grqq{} (FAQ des
+				Bundes \cite{admin})
+			\item[$\to$] Die wenigsten Länder verfügen über einen
+				gleichwertigen Datenschutz (z.B. USA? WTF?!?)
+			\item[$\to$] Was wollen Fluggesellschaften mit meinen
+				Fingerabdrücken?
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}
+	\frametitle{Extended Access Control (Pass 06: Nein; Pass 10: Ja)}
+	\begin{block}{Probleme}
+		\begin{itemize}
+			\item Zertifikate haben begrenzte zeitliche Gültigkeit (macht
+				Sinn)
+			\item[$\to$] Aber: woher weiss der Pass das Datum (ohne Leser
+				komplett deaktiviert)?
+			\item[$\to$] Leser kann dem Pass das aktuelle Datum mitteilen
+			\item[$\to$] EAC eines Passes, der 2 Jahre nicht mehr ausgelesen
+				wurde kann mit Zertifikat, dass 1.5 Jahre abgelaufen ist
+				umgangen werden
+			\item[$\to$] Sind alle Computer der Fluggesellschaften sicher und
+				alle Angestellten unbestechlich?
+		\end{itemize}
+	\end{block}
+\end{frame}
+\subsection{Angriffe auf die Privatsphäre}
+\begin{frame}
+	\frametitle{Random ID (Pass 06: Nein; Pass 10: Ja)}
+	\begin{block}{Random ID}
+		\begin{itemize}
+			\item Anticollision Verfahren benötigt ID
+			\item Dadurch ist eine Identifizierung auch ohne auslesen von
+				Daten möglich
+			\item Lösung: Zufällige ID
+		\end{itemize}
+	\end{block}
+	\begin{block}{Probleme:}
+		\begin{itemize}
+			\item Unterschiedliche Implementierungen (z.B. erste 2 Ziffern
+				fix vs alles zufällig)
+			\item[$\to$] Fingerprinting
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Fingerprinting}
+	\begin{block}{Fingerprinting}
+		\begin{itemize}
+			\item Durch Beobachtung von \grqq{}Umweltfaktoren\grqq{} können
+				Rückschlüsse auf des Land, möglicherweise auch auf den
+				spezifischen Pass gezogen werden
+			\item Keine Überwindung der Sicherheitsmechanismen nötig
+			\item z.B. verschiedene Chiphersteller $\to$ verschiedene ATR,
+				unterschiedliche Reaktionszeit, etc.
+			\item z.B. unterschiedliche Gesichter $\to$ verschieden starke
+				Komprimierung $\to$ verschieden lange Auslesedauer
+			\item Allerdings: Tracking geht mit Mobiltelefonen auch einfacher
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Weitere technische und nicht-technische Angriffe}
+\begin{frame}
+	\frametitle{Weitere Angriffspunkte}
+	\begin{block}{Nicht vergessen:}
+		Auch wenn die eigentlichen Sicherheitsverfahren verhalten, sind
+		Angriffe auf anderen Ebenen möglich.
+	\end{block}
+	\begin{block}{Beispiele}
+		\begin{itemize}
+			\item Implementationsprobleme (z.B. schwache Zufallszahlen)
+			\item Angriffe auf die darunterliegende Infrastruktur (z.B. Trojaner
+				in einem Computer eines Ausstellungszentrums)
+			\item Side-channel attacks
+			\item Relay Attacken
+			\item Denial of Service Attacken (z.B. RFID Zapper)
+			\item Der menschliche Faktor (z.B. Bestechung, um an ein
+				Auslesezertifikat zu kommen)
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}
+	\frametitle{Was sonst noch zu sagen wäre \ldots}
+	\begin{block}{Zentrale Datenbank}
+		\begin{itemize}
+			\item Kann zu unbeabsichtigten Datenverlusten tendieren
+			\item Technisch und politisch unnötig
+			\item Um Missbrauch nach Diebstahl zu verhindern würde eine
+				Datenbank gestohlener Pässe genügen
+		\end{itemize}
+	\end{block}
+	\begin{block}{Fingerabdrücke}
+		\begin{itemize}
+			\item Können sehr leicht gefälscht werden (siehe z.B.
+				CCC\cite{CCC-fingerprints})
+			\item[$\to$] Falsches Vertrauen auf sichere Identifizierung senkt
+				die Sicherheit
+			\item Problem mit false Negatives führt zu grosser
+				Toleranzschwelle $\to$ darum kaum zusätzliche Sicherheit
+				(gleiches Problem bei Gesichtserkennung)
+			\item Film vom CCC (2min)
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\section{Zusammenfassung}
+\begin{frame}
+	\frametitle{Zusammenfassung}
+	\begin{block}{Zusammenfassung}
+		\begin{itemize}
+			\item Mehr Technologie bringt auch eine breitere Angrifsfläche
+			\item Komplexe Technologie, die unter Zeitdruck eingeführt wird
+				\begin{itemize}
+					\item[$\to$] wer versteht die ganze Technik dahinter? (ich
+						jedenfalls nicht :) 
+				\end{itemize}
+			\item Kontaktbasierte statt kontaktlose Lösung hätte einige
+				Probleme verhindert
+				\begin{itemize}
+					\item wohl politisch nicht möglich
+				\end{itemize}
+			\item Fingerabdruck als Sicherheitsmerkmal: Schlechte Idee
+			\item Datenbank bringt keinen Sicherheitsgewinn, schafft aber
+				Begehrlichkeiten
+			\item Langsame Verlagerung der Kontrollaufgabe von
+				Sicherheitspersonal zu Computern?
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+
+
+\section{Fragen?}
+
+\begin{frame}
+	\frametitle{Fragen?}
+
+	\begin{block}{Weitere Infos:}
+		Unsere sich im Aufbau befindliche Website:\\
+		$\Rightarrow$ \myhref{http://biometrische-ausweise.ch}
+	\end{block}
+	
+	\begin{block}{Dank geht an \ldots}
+		\begin{itemize}
+			\item alle Zuhörer für die Aufmerksamkeit
+			\item den CCCZH für die Organisation des Talks
+			\item die Leute, die mir ihre Pässe zum Testen anvertraut haben
+			\item Adam Laurie, THC, etc. für Open Source MRTD Tools 
+		\end{itemize}
+	\end{block}
+
+\end{frame}
+
+\appendix
+\setbeamertemplate{bibliography item}[text]
+\section*{Referenzen}
+\begin{frame}[allowframebreaks]{Referenzen}
+	\frametitle{Referenzen}
+	\begin{thebibliography}{30}
+		\bibitem{bsi-lesedistanz}{Abhörmöglichkeiten der Kommunikation
+			zwischen Lesegerät und Transponder am Beispiel eines ISO
+			14443-Systems \\
+			\myhref{http://www.bsi.de/fachthem/rfid/whitepaper.htm}}
+		\bibitem{hancke-practical-attacks}{G.P. Hancke. Practical Attacks on
+			Proximity Identification Systems (Short Paper). In 2006 IEEE
+			Symposium on Security and Privacy (S\&P'06), Berkeley, CA, USA, pp.
+			328-333, IEEE, 2006.}
+		\bibitem{kfir-wool}{Ziv Kfir and Avishai Wool.
+			Picking virtual pockets using relay attacks on contactless
+			smartcard systems.
+			In Proc. 1st International Conference on Security and Privacy for
+			Emerging Areas in Communication Networks (SecureComm), pages
+			47-58, Athens, Greece, September 2005. IEEE.}
+		\bibitem{kirschenbaum-wool}{How to Build a Low-Cost, Extended-Range
+			RFID Skimmer\\
+			\myhref{http://www.eng.tau.ac.il/~yash/kw-usenix06/index.html}}
+		\bibitem{admin}{Informationsseite des Bundes\\
+			\myhref{http://www.schweizerpass.admin.ch/}}
+		\bibitem{CCC-fingerprints}{Der CCC erklärt, wie ein Fingerabdruck
+			kopiert werden kann\\
+			\myhref{http://www.ccc.de/biometrie/fingerabdruck\_kopieren}}
+		\bibitem{juels-molnar-wagner}{ A. Juels, D. Molnar, D. Wagner.
+			Security and Privacy Issues in E-Passports. In Proceedings of the
+			First International Conference on Security and Privacy for
+			Emerging Areas in Communications Networks (SecureComm'05),
+			Washington, DC, USA, pp. 74-88, IEEE, 2005.}
+		\bibitem{e-passport-threats}{E-Passport Threats -- Vaudenay, Serge\\
+			\myhref{http://infoscience.epfl.ch/record/115087}}
+		\bibitem{about-mrtds-vaudenay}{About Machine-Readable Travel Documents
+			--
+			Vaudenay, Serge ; Vuagnoux, Martin\\
+			\myhref{http://infoscience.epfl.ch/record/110699}}
+	\end{thebibliography}
+\end{frame}
+
+\end{document}
+

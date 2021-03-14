@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>hardware</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="content-language" content="en"/>
+	<meta name="author" content="Andreas Müller"/>
+	<meta name="description" content="Code, text and assorted bits."/>
+	<meta name="keywords" content="code, text, electronics, event correlation, dab, gnu radio, dcf77, vim, mutt"/>
+	
+	<link rel="icon" href="../favicon.ico" type="image/x-icon" />
+	
+	<link rel="stylesheet" href="../local.css" type="text/css" />
+	
+</head>
+<body>
+<div id="menu">
+<!-- start menubar -->
+<ul>
+    <li>
+        <a href="/">Home</a>
+    </li>
+    <li>
+        <a href="/text/">Text</a>
+    </li>
+    <li>
+        <a href="/code/">Code</a>
+    </li>
+    <li>
+        <a href="/hardware/">Hardware</a>
+    </li>
+    <li>
+        <a href="/etc/">Etc</a>
+    </li>
+    <li>
+        <a href="/about/">About</a>
+    </li>
+    <li>
+        <a href="/contact/">Contact</a>
+    </li>
+</ul>
+
+<!-- stop menubar -->
+</div>
+<div id="header">
+	<div id="title"><a href="#">0x7.ch</a></div>
+	<div id="subtitle"><a href="#">assorted bits ...</a></div>
+</div>
+<div id="page">
+<div id="breadcrumbs">
+<a href="../">0x7.ch</a> / hardware /
+<div class="hr"></div>
+</div>
+<div id="content">
+<div class="post">
+<!-- start content -->
+<p>
+    This section provides some schematics for electronics projects.
+    As I currently enjoy creating software more, this is mostly
+    older stuff.
+</p>
+<h1>
+    AVR MCU Projects
+</h1>
+<p>
+    These projects date from around 2005 and except for the
+    geekclock, I no longer maintain them. The schematics were all
+    drawn using <a href="http://www.cadsoft.de/">Eagle</a> (which
+    is free as in beer, but not as in speech).
+</p>
+<h2>
+    Geekclock
+</h2>
+<p>
+    A simple binary LED clock. I used this project in various
+    workshops as an introduction to electronics and
+    microcontrollers. The project files come with an extensive
+    building instruction (in German), which also explains some
+    electronics basics.
+</p>
+<ul>
+    <li>
+        <a href="/files/geekclock.tar.gz">Download</a>
+    </li>
+    <li>
+        <a href="/hardware/geekclock_simple/">Photos</a>
+    </li>
+    <li>
+        <a href=
+        "/hardware/geekclock_simple/schematic.png">Schematic</a>
+    </li>
+    <li>
+        <a href="/text/geekclock-doc.pdf">Documentation</a>
+        (<a href="/text/geekclock-doc.tex">tex</a>)
+    </li>
+    <li>
+        <a href="/text/geekclock-slides.pdf">Slides</a> (<a href=
+        "/text/geekclock-slides.tex">tex</a>)
+    </li>
+</ul>
+<h2>
+    Universal USB Interface
+</h2>
+<p>
+    This project uses the FTDI 232 chip to provide a USB interface
+    to an ATMega32 MCU. I used this to replace the parallel port as
+    a generic interface to some other projects, such as a smartcard
+    interface, an EEPROM reader/writer, a temperature sensor or a
+    random number generator. The ATMega32 provides 24 digital,
+    bilinear ports (8 of which can alternatively be used as analog
+    inputs), which can all be controlled from the host.
+</p>
+<ul>
+    <li>
+        <a href="/hardware/avr_usb_board.tar.gz">Download</a>
+    </li>
+    <li>
+        <a href="/hardware/USBInterface.jpg">Photo</a> (with
+        SmartCard reader front-end)
+    </li>
+</ul>
+<h2>
+    LED Flashlight
+</h2>
+<p>
+    Rechargeable flashlight with 15 LEDs.
+</p>
+<ul>
+    <li>
+        <a href="/hardware/LedLampe2.tar.gz">Download</a>
+    </li>
+    <li>
+        <a href="/hardware/LEDLight.jpg">Photo</a>
+    </li>
+</ul>
+<h2>
+    Alarm Clock
+</h2>
+<p>
+    An alarm clock, that displays the time in decimal and binary,
+    uses DCF77 for time synchronisation and has some other nice
+    features. It's made of a lot of very basic ICs (of course it
+    would be easier to just use one microcontroller, but at the
+    time I thought this is more fun).
+</p>
+<ul>
+    <li>
+        <a href="/hardware/wecker.tar.gz">Project</a>
+    </li>
+    <li>
+        <a href="/hardware/geekclock/">Some photos</a>
+    </li>
+</ul>
+
+<!-- end content -->
+</div>
+</div>
+<div id="sidebar"> 
+<div id="updates" class="bluebox">
+<!-- start sidebar -->
+<h4>
+    Tools
+</h4>
+<h5>
+    Navigation
+</h5>
+<ul>
+    <li>
+        <a href="/sitemap/">Sitemap</a>
+    </li>
+</ul>
+
+<!-- end sidebar -->
+</div>
+</div>
+<div style="clear: both;">&nbsp;</div>
+</div>
+<div id="footer">
+<p>Last edited <span class="date">Sun Mar 14 02:08:26 2010</span>.</p>
+<p>Design by <a href="http://www.freecsstemplates.org/">Free CSS Templates</a>.</p>
+</div>
+</body>
+</html>

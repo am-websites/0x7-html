@@ -1,0 +1,256 @@
+\documentclass{beamer}		%Artikel Dokumentvorlage
+\usepackage[ngerman]{babel}	%neue deutsche Rechtschreibung
+\usepackage[latin1]{inputenc}	%latin1 Zeichensatz: damit ae,oe,ue direkt in den Text geschrieben werden koennen
+\usepackage{helvet}
+
+\usetheme{Warsaw}
+
+
+\title{Cheating Time}
+\subtitle{How to build your own DCF77 transmitter}
+\author{Andreas M\"uller}
+\date{}
+\institute{\includegraphics[scale=0.4]{pics/cosin06.jpg}}
+\begin{document}
+
+
+\frame[plain]{\titlepage
+	%\begin{minipage}{3.5cm}\includegraphics[scale=0.3]{pics/cc.png}\end{minipage}
+	%\begin{minipage}{7cm}\fontsize{5}{6}\selectfont This work is licensed under the Creative Commons Attribution 2.5 License. To view a copy of this license, visit http://creativecommons.org/licenses/by/2.5/ or send a letter to Creative Commons, 543 Howard Street, 5th Floor, San Francisco, California, 94105, USA.\end{minipage}
+}
+
+\setcounter{tocdepth}{2}
+\frame{\tableofcontents}
+
+\section{Some infos about the speaker}
+\frame{\frametitle{Some infos about the speaker}
+\begin{itemize}
+	\item studying electrical engineering and information technology
+	\item Chaostreff Aargau
+	\item other interests: 
+	\begin{itemize}
+		\item software defined radio
+		\item hardware misuse and reuse
+	\end{itemize}
+\end{itemize}
+}
+
+\section{Some infos about DCF77}
+\subsection{What is DCF77}
+\frame{\frametitle{What is DCF77?}
+\begin{itemize}
+	\item official german time signal
+	\item used by many radio controlled clocks for time synchronisation
+	\item compatible to the swiss HBG signal (at 75kHz)
+	\item callsign DCF77 (D: germany; C: longwave; F: near Frankfurt)
+	\item time base is very accurate (atomic clocks used)
+	\item accurate receiving  ($<$1ms difference) is difficult
+	\item widely available, due to low frequency
+\end{itemize}
+}
+
+\subsection{DCF77 protocol}
+\frame{\frametitle{DCF77 protocol - signal characteristics}
+\begin{itemize}
+	\item continuous wave at 77.5kHz (LF!)
+	\item amplitude lowered to 25\% once per second
+	\begin{itemize}
+		\item 100ms for low bit (0)
+		\item 200ms for high bit (1)
+		\item power is not lowered when new minute starts
+	\end{itemize}
+	\item 60 bits are transmitted in one minute
+	\item additionally phase modulation, but most clocks don't check that
+\end{itemize}
+}
+
+\frame{\frametitle{DCF77 protocol - time code}
+\begin{minipage}{5cm}
+\includegraphics[scale=0.3]{pics/dcf77code.jpg}
+\end{minipage}
+\begin{minipage}{5cm}
+\begin{itemize}
+	\item Z1: summertime; Z2: wintertime; A1: changing; A2: leap second; S: time start (always high)
+	\item P1-P3: parity bits (even parity)
+	\item numbers in BCD
+\end{itemize}
+\end{minipage}
+
+}
+
+\frame{\frametitle{DCF77 protocol - error checking}
+\begin{itemize}
+	\item protocol has error detection, but no security features
+	\item 3 parity bits $\rightarrow$ 1/8 chance that random signal is correct
+	\item most clocks receive 2 minutes until they accept the signal
+	\item there's no easy way to add security, because everyone should be able to use it
+\end{itemize}
+}
+
+
+\section{Spoofing DCF77}
+\subsection{Motivation?}
+\frame{\frametitle{Why would anyone want to spoof the DCF77 signal?}
+\begin{itemize}
+	\item it's old, but still widely used (easy and cheap implementation!)
+	\item from ptb.de: \\ \textit{Zeitdienstsysteme bei der Bahn, im Bereich der Telekommunikation und der Informationstechnologie, bei Rundfunk- und Fernsehanstalten werden z.B. ebenso von DCF77 funkgesteuert wie Tarifschaltuhren bei Energieversorgungsunternehmen und Uhren in Ampelanlagen.}
+	\item just to give you some ideas, never tried by me
+\end{itemize}
+}
+
+\subsection{How to spoof the signal}
+\frame{\frametitle{Spoofing - the smart way}
+\begin{itemize}
+	\item smart attack: just send wave for 100ms to change 200ms break to 100ms break
+	\begin{itemize}
+		\item little power needed
+		\item very exact timing and power levels needed
+		\item hard to implement
+		\item 1 can be changed to 0, but not the other way
+	\end{itemize}
+\end{itemize}
+\begin{center}\includegraphics[scale=0.4]{pics/spoof_smart.png}\end{center}
+}
+
+\frame{\frametitle{Spoofing - BruteForce}
+\begin{itemize}
+	\item brute force: send with more power than official sender
+	\item the real signal will then be seen as noise by the clock
+	\begin{itemize}
+		\item official signal is sent with 50 kW, but power drops with $1/m^2$ proportionality
+		\item for near range, very low power is needed for spoofing
+		\item easy to implement
+	\end{itemize}
+	\item take care to set parity bits correct
+	\item signal needs to be sent for a long time (at least some minutes)
+	\item time base for sender should be stable
+\end{itemize}
+}
+
+\subsection{Signal generation with ATMega8}
+
+\frame{\frametitle{The almighty ATMega8}
+\begin{itemize}
+	\item 8bit RISC Microcontroller, up to 16MHz
+	\item costs about 3 Euro per piece
+	\item it's not a DSP
+	\item some of the included peripherals:
+	\begin{itemize}
+		\item IO ports, AD input ports
+		\item several timers (useful!)
+		\item serial interface, watchdog, etc
+	\end{itemize}
+\end{itemize}
+}
+
+\frame{\frametitle{Sending the signal - using a microcontroller}
+\begin{itemize}
+	\item Hardware:
+	\begin{itemize}
+		\item ATMega8 for signal and frequency generation
+		\item R-2R network for DA convertion
+		\item single transistor for current amplification
+		\item resistor to keep emitted power low
+		\item ferrite antenna ($\rightarrow$ magnetic field is radiated)
+	\end{itemize}
+	\item Software:
+	\begin{itemize}
+		\item calculate DCF77 bits
+		\item assembler code for contionuous waveform output
+		\item timer generates 1 interrupt each second
+		\item at interrupt: delay 100ms or 200ms
+	\end{itemize}
+\end{itemize}
+}
+
+\frame{\frametitle{Sending the signal - using a microcontroller}
+\begin{center}\includegraphics[scale=0.6]{pics/dcf_schematic.png}\end{center}
+}
+
+\subsection{Signal generation with soundcard}
+\frame{\frametitle{Sending the signal - using a soundcard}
+\begin{itemize}
+	\item soundcard is good for VLF (3-30kHz)
+	\item DCF77 at 77.5 kHz is not much too high
+	\item some soundcards work up to 96kHz, but most only to 22kHz (including mine)
+	\item maybe using the 5th harmonic of a 15.5 kHz square wave
+	\item square wave synthesis: $\displaystyle r(t)=\sum_{n=0}^\infty \frac{1}{2n+1}\sin((2n+1)t)$
+	\item soundcards have lowpass filters to prevent output of aliases
+	\item but we can take advantage of (usually unwanted) clipping
+\end{itemize}
+}
+
+\frame{\frametitle{Sending the signal - using a soundcard}
+sinus signal after DA converter in soundcard:
+\begin{center}\includegraphics[scale=0.4]{pics/sound_1_da.png}\end{center}
+}
+\frame{\frametitle{Sending the signal - using a soundcard}
+sinus signal after lowpass filter of soundcard:
+\begin{center}\includegraphics[scale=0.4]{pics/sound_2_filter.png}\end{center}
+}
+\frame{\frametitle{Sending the signal - using a soundcard}
+signal with clipping (contains harmonics!):
+\begin{center}\includegraphics[scale=0.4]{pics/sound_3_clipping.png}\end{center}
+}
+
+\frame{\frametitle{Sending the signal - using a soundcard}
+Software and hardware Implementation:
+\begin{itemize}
+	\item use xmms to create 15.5 kHz tone
+	\begin{itemize}
+		\item add URL: \texttt{tone://15500/}
+	\end{itemize}
+	\item C code controls mixer settings
+	\item alternative: create mp3 for mobile spoofing
+	\item antenna: use a speaker (creates magnetic field!)
+	\item interesting legal question:
+	\begin{itemize}
+		\item spoofing DCF77 is probaly not legal
+		\item playing a 15.5 kHz tone with a soundcard is certainly legal
+		\item as long as power is low, noone cares
+	\end{itemize}
+
+\end{itemize}
+
+}
+
+\subsection{Future of the DCF77 signal}
+\frame{\frametitle{Future uses of DCF77}
+\begin{itemize}
+	\item from ptb.de: \\ \textit{ [...] wurden bisher in den ersten vierzehn Sekunden jeder Minute nur Statusinformationen übertragen. Im Auftrag des Bundesinnenministeriums wurde untersucht, ob stattdessen im Gefahrenfall Warnhinweise an die Bevölkerung ausgesendet werden könnten. Der seit Mitte 2004 vorliegende Abschlussbericht favorisiert eine solche Nutzung. [...]}
+	\item using this for mischief would be rude/childish
+	\item still it might not be the best idea to use DCF77 for emergency warning
+\end{itemize}
+}
+
+\frame{\frametitle{Future uses of DCF77}
+DCF77 emergency warning clock
+\begin{center}
+\includegraphics[scale=0.25]{pics/alarm_uhr.jpg}
+\end{center}
+}
+
+\subsection{Conclusions}
+\frame{\frametitle{Conclusions}
+\begin{itemize}
+	\item spoofing the DCF77 signal is easy
+	\item it can be done with hardware for $<$10 CHF
+	\item amplification of the signal for greater range \textit{would} be easy
+	\item but if you try, you probably get your ass kicked very fast
+	\item ATMega MCU's are cool
+	\item the soundcard can also be used for some fun stuff (besides playing sound)
+\end{itemize}
+}
+
+\section{Questions/Links}
+\frame{\frametitle{Questions?}
+Further infos:
+\begin{itemize}
+	\item Wikipedia: \texttt{http://de.wikipedia.org/wiki/DCF77}
+	\item Physikalisch-Technische Bundesanstalt: \texttt{http://www.ptb.de/de/org/4/44/442/dcf77\_1.htm}
+	\item detailed description of DCF77: \texttt{http://www.ptb.de/de/org/4/44/pdf/dcf77.pdf}
+	\item slides were created with \LaTeX; plots were done with \texttt{octave} and \texttt{gnuplot}
+\end{itemize}
+}
+
+\end{document}

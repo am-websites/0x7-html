@@ -1,0 +1,255 @@
+\documentclass{beamer}		%Artikel Dokumentvorlage
+\usepackage[ngerman]{babel}	%neue deutsche Rechtschreibung
+\usepackage[latin1]{inputenc}	%latin1 Zeichensatz: damit ae,oe,ue direkt in den Text geschrieben werden koennen
+\usepackage{helvet}
+
+
+\usetheme{Warsaw}
+
+
+\title[Geekclock -- Code and Hardware Walkthrough]{Geekclock}
+\subtitle{Code and Hardware Walkthrough}
+\author{Andreas M\"uller}
+\date{}
+\institute{\\\large Chaos Singularity 2007}
+
+\AtBeginSection[]{\frame{\tableofcontents[current,sectionstyle=show/shaded,subsectionstyle=show/show/hide]}}
+\setbeamercovered{transparent=50}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+\setcounter{tocdepth}{2}
+\frame[plain]{\tableofcontents}
+
+\section{Elektronik}
+\subsection{Stromkreis}
+\begin{frame}
+	\frametitle{Stromkreis}
+	\begin{minipage}{3.5cm}
+		\begin{center}\includegraphics[scale=0.2]{../doc/pics/circuit.png}\end{center}
+	\end{minipage}
+	\begin{minipage}{6.5cm}
+		\begin{itemize}
+			\item Strom fliesst nur im geschlossenen Kreis
+			\item hier sind LED und Widerstand in Serie
+			\begin{itemize}
+				\item gleicher Strom fliesst durch beide Elemente
+				\item Spannungen über den Elementen sind unterschiedlich
+				\item bei Parallelschaltung wäre es umgekehrt 
+			\end{itemize}
+		\end{itemize}
+	\end{minipage}
+\end{frame}
+
+\subsection{Gesetz von Ohm}
+\begin{frame}
+	\frametitle{Ohm'sches Gesetz}
+	Proportionalität zwischen Widerstand $R$, Strom $I$ durch $R$, und Spannung $U$ über $R$:
+	\[U=R*I\]
+	Beispiel von der letzten Folie -- benötigter Widerstand?
+	\begin{itemize}
+		\item Spannung über Widerstand (Batteriespannung - LED bias): $U=4.5V-2V=2.5V$
+		\item Strom: LED soll ca 10mA haben
+		\item Widerstand: \[R=\frac{U}{I}=\frac{2.5V}{10mA}=\frac{2.5V}{0.01A}=250 \Omega\]
+	\end{itemize}
+\end{frame}
+
+\subsection{Knotenpunkt- und Maschenregel}
+\begin{frame}
+	\frametitle{Knotenpunkt- und Maschenregel}
+	\begin{minipage}{6cm}
+		Kirchhoff'sche Gesetze:
+		\begin{itemize}
+			\item Knotenregel: Summe aller Ströme in einem Knoten ist Null ($\rightarrow$ es gehen keine Elektronen verloren)
+			\item Maschenregel: Summe aller Spannungen in einer Masche ist Null ($\rightarrow$ es fällt über einer idealen Leitung keine Spannung ab)
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{4cm}
+		\begin{center}\includegraphics[scale=0.25]{pics/circuit_example.png}\end{center}
+	\end{minipage}
+\end{frame}
+
+\subsection{Komponenten}
+\begin{frame}
+	\frametitle{Widerstand}
+	\begin{itemize}
+		\item Symbol: $R$
+		\item Schaltzeichen: \includegraphics[scale=0.15]{pics/r.jpg}
+		\item Kenngrösse: Widerstand mit Einheit Ohm ($\Omega$)
+		\item Spannung über Widerstand ist proportional zu Strom
+		\item Farbcodierung gibt Widerstandswert an 
+		%\item Einbaurichtung egal
+	\end{itemize}
+	\begin{center}\includegraphics[scale=0.5]{pics/r_photo.jpg}\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Kondensator}
+	\begin{itemize}
+		\item Symbol: $C$
+		\item Schaltzeichen: \includegraphics[scale=0.15]{pics/c.jpg}
+		\item Kenngrösse: Kapazität mit Einheit Farad ($F$)
+		\item Schaltzeichen für Elektrolytkondensatoren: \includegraphics[scale=0.15]{pics/cpol.jpg}
+		\item speichert Strom / stabilisiert Spannung
+		%\item Einbaurichtung bei Elektrolytkondensatoren relevant
+		%\item zeitliche Änderung der Spannung über dem Kondensator proportional zum Stromfluss:  \[i=C\frac{\mathrm{d} u}{\mathrm{d} t}\]
+		\item Werte sind meist direkt aufgedruckt
+	\end{itemize}
+	\begin{center}\includegraphics[scale=0.2]{pics/c_photo.jpg}\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Diode und LED}
+	\begin{itemize}
+		\item Symbol: $D$
+		\item Schaltzeichen: \includegraphics[scale=0.15]{pics/d.jpg} bzw. \includegraphics[scale=0.15]{pics/led.jpg} (LED)
+		\item Dioden lassen Strom nur in eine Richtung durch $\to$ Einbaurichtung (Polarität) beachten
+		\item in der Geekclock als Anzeige (LED) und Verpolungsschutz
+		\item LED: Light Emitting Diode
+	\end{itemize}
+	\begin{center}\includegraphics[scale=0.4]{pics/led_photo.jpg}\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Quarz}
+	\begin{itemize}
+		\item Symbol: $Q$
+		\item Schaltzeichen: \includegraphics[scale=0.15]{pics/q.jpg}
+		\item liefert sehr stabile Referenzfrequenz
+		\item Funktionsweise: Quarzplättchen mit angelegten Elektroden:
+		\begin{itemize}
+			\item Quarz verbiegt sich beim Anlegen einer Spannung
+			\item Spannung weg $\to$ Deformation umgekehrt $\to$ Spannung wird produziert
+			\item positive Rückkoppelung nur bei Resonanzfrequenz und Harmonischen
+		\end{itemize}
+	\end{itemize}
+	\begin{center}\includegraphics[scale=0.8]{pics/q_photo.jpg}\end{center}
+\end{frame}
+
+\section{Using Microcontrollers}
+\subsection{What is an MCU?}
+\begin{frame}
+	\frametitle{What is a microcontroller?}
+	\begin{itemize}
+		\item Wikipedia: A microcontroller (or MCU) is a computer-on-a-chip. It is a type of microprocessor emphasizing self-sufficiency and cost-effectiveness, in contrast to a general-purpose microprocessor (the kind used in a PC).
+		\item RAM, ROM, memory and a CPU are, along with various peripherals, all contained on a single chip, which can be programmed to fulfill a specific task.
+	\end{itemize}
+\end{frame}
+\subsection{ATMega8 features}
+\begin{frame}
+	\frametitle{ATMega8}
+	\begin{itemize}
+		\item RISC Microcontroller, max 16MHz
+		\item 23 I/O lines
+		\item lots of integrated peripherals
+		\begin{itemize}
+			\item timers
+			\item AD converters
+			\item PWM
+			\item internal or external oscillator possible
+		\end{itemize}
+		\item sleep mode support
+		\item In-System Programmable Flash memory
+	\end{itemize}
+\end{frame}
+\subsection{Differences from coding on a PC}
+\begin{frame}
+	\frametitle{MCU coding peculiarities}
+	\begin{itemize}
+		\item less powerful hardware
+		\item in our case
+		\begin{itemize}
+			\item 32kHz core frequency (up to 16MHz would be possible)
+			\item 1KB SRAM
+			\item 8KB Flash memory
+			\item[] ... ought to be enough for everyone
+		\end{itemize}
+		\item no FPU
+	\end{itemize}
+\end{frame}
+\begin{frame}
+	\frametitle{MCU coding peculiarities (continued)}
+	\begin{itemize}
+		\item no OS
+		\begin{itemize}
+			\item only one process
+			\item no virtual memory, etc
+			\item hard real time is possible
+			\item avr-libc provides some functions
+		\end{itemize}
+		\item no printf
+		\item no easy way to tell if an error is in software or in hardware
+		\item programs are usually designed to never reach an end 
+	\end{itemize}
+\end{frame}
+\begin{frame}
+	\frametitle{some advice for efficient coding}
+	\begin{itemize}
+		\item use \texttt{gcc} with $\texttt{-Os}$ (\texttt{-O2} and optimize for size)
+		\item don't use 32bit integers, when you only need 8bit ($\to$ use \texttt{uint8\_t} or \texttt{int8\_t}) [demo]
+		\item condition checks are preferable to expressions with modulo operations or multiplications
+		\item avoid floating point variables and functions (\texttt{sin(), sqrt(), ..})
+		\item keep variable count low (even if the SRAM is big enough -- if you have only a few variables, they can always stay in the registers)
+		\item there is usually no need to code in assembler
+		\item don't worry ... 32kHz is more than it might seem
+	\end{itemize}
+\end{frame}
+
+
+\section{Geekclock Hardware}
+\subsection{Hardware Overview}
+\begin{frame}
+	\frametitle{Geekclock Hardware Overview}
+	\begin{itemize}
+		\item core: ATMega8 MCU 
+		\item clock from 32kHz crystal (low frequency to save power)
+		\item 6 LEDs to show time in binary
+		\item button to control clock
+		\item diode to protect MCU from wrong polarity
+		\item interface for programming via LPT cable or USB programmer
+	\end{itemize}
+
+\end{frame}
+\subsection{Circuit diagram}
+\begin{frame}[plain]
+	\begin{center}\includegraphics[scale=0.8]{../hardware/simplified/schema.png}\end{center}
+\end{frame}
+
+\section{Geekclock Software}
+\subsection{Software concept}
+\begin{frame}
+	\frametitle{Software concept}
+	\begin{itemize}
+		\item hardware timer generates interrupt each second
+		\item time is updated in interrupt routine
+		\item button generates interrupt
+		\item time is shown in main routine after button was pressed
+	\end{itemize}
+\end{frame}
+\subsection{Structure Overview}
+\begin{frame}
+	\frametitle{Structure overview}
+	\begin{itemize}
+		\item \texttt{geekclock.c}: interrupts, main-routine
+		\item \texttt{lowlevel.c}: initialisation (Timer, Ports), lowlevel functions %(\texttt{delay\_ms()}, \texttt{button\_down()}, \texttt{set\_leds()})
+		\item \texttt{datetime.c}: calendar functions, time functions 
+		\item \texttt{led.c}: LED control, effects
+	\end{itemize}
+\end{frame}
+\subsection{Code Walkthrough}
+\begin{frame}
+	\frametitle{Code}
+	\begin{center}(Code)\end{center}
+\end{frame}
+
+\appendix
+\section*{Questions}
+\begin{frame}
+	\frametitle{Questions}
+		\begin{center}Questions?\end{center}
+\end{frame}
+
+
+\end{document}

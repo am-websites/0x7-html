@@ -1,0 +1,308 @@
+\documentclass[10pt]{beamer}
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{helvet}
+
+\usetheme{Frankfurt} % Warsaw is nice, too
+
+
+\title[]{DAB}
+\subtitle{Software Receiver Implementation}
+\author{Andreas Müller \\ Supervisor: Michael Lerjen}
+\date{June 13, 2008}
+\institute{ETH -- ITET -- CTL}
+
+\AtBeginSection[]{\frame{\tableofcontents[current,sectionstyle=show/shaded,subsectionstyle=show/show/hide]}}
+\setbeamercovered{transparent=50}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+\setcounter{tocdepth}{2}
+\frame[plain]{\tableofcontents}
+
+\section{Introduction}
+
+\subsection{Task}
+
+\begin{frame}
+	\frametitle{Task}
+
+	\begin{large}	
+		Goal: Implementation of a real-time DAB receiver as SDR
+	\end{large}
+
+	\begin{center}
+		\begin{minipage}{8cm}
+			\begin{block}{SDR}
+				Software Defined Radio $\rightarrow$ (almost) all signal processing in software
+			\end{block}
+			\begin{block}{DAB}
+				Digital Audio Broadcasting $\rightarrow$ digital radio
+				technology standardized by ETSI
+			\end{block}
+			\begin{block}{Real-time}
+				Process data as fast as it arrives $\rightarrow$ 2 MSPS or 16 MB/s
+			\end{block}
+		\end{minipage}
+	\end{center}
+
+\end{frame}
+
+\subsection{Software Defined Radio}
+
+\begin{frame}
+	\frametitle{Software Defined Radio}
+	\begin{block}{Idea}
+		Digitize the signal and do all the signal processing in (high level,
+		architecture independent) software.
+	\end{block}
+	\begin{block}{Strengths}
+		\begin{itemize}
+			\item Flexibility
+			\item Reusable code, fast development cycle
+			\item Cognitive radio: Adapts itself dynamically to RF environment
+				\\$\rightarrow$ better spectral and power efficiency 
+		\end{itemize}
+	\end{block}
+	\begin{block}{Weaknesses}
+		\begin{itemize}
+			\item Limited sample rate and dynamic range of ADCs and DACs
+				\\$\rightarrow$ analog front end needed for filtering
+			\item Resource usage, energy consumption, cost
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\subsection{DAB}
+
+\begin{frame}
+	\frametitle{Digital Audio Broadcasting (DAB) Specification}
+	\begin{block}{Modes}
+		Four modes  for different frequency ranges and RF characteristics
+		\begin{itemize}
+			\item Presentation: Mode I (Code: All Modes)
+		\end{itemize}
+	\end{block}
+	\begin{block}{DAB Mode I OFDM signal}
+		\begin{itemize}
+			\item Frames with 76 OFDM symbols (1 pilot, 75 data)
+			\item Null symbols (energy zero) to separate frames
+			\item 1536 subcarriers à 1 kHz \&  central carrier zero $\to$ 1.537 MHz
+			\item D-QPSK modulation for each subcarrier
+			\item Cyclic prefix: 504 samples $\to$ SFN with max. TX distance 74 km
+		\end{itemize}
+	\end{block}
+	\begin{block}{Upper Layers}
+		\begin{itemize}
+			\item Punctured convolutional coding
+			\item Energy dispersal, Time interleaving
+			\item MPEG 2 audio coding
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{GNU Radio and USRP}
+
+\begin{frame}
+	\frametitle{GNU Radio}
+	\begin{block}{Overview}
+		\begin{itemize}
+			\item Open source framework for real-time software radios
+			\item Provides many common building blocks: FFT, FIR \& IIR
+				filters, mathematical operations, AGC, modulation \&
+				demodulation, \ldots
+		\end{itemize}
+	\end{block}
+	\begin{block}{Flow Graph Concept}
+		\begin{itemize}
+			\item Programmer creates a directed graph for sample flow
+			\item Signal processing blocks are written in C++ and wired together in Python
+		\end{itemize}
+	\end{block}
+	\begin{block}{Signal Processing Block}
+		\begin{itemize}
+			\item \texttt{work()} function receives a number of samples from
+				scheduler
+			\item Block processes as many samples as possible and returns the
+				number of consumed and produced samples
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Universal Software Radio Peripheral (USRP)}
+	\begin{block}{Hardware}
+		\begin{itemize}
+			\item Interface between computer and antenna is needed
+			\item Most commonly used with GNU Radio: USRP
+		\end{itemize}
+	\end{block}
+	\begin{block}{USRP}
+		\begin{itemize}
+			\item Two AD9862 Mixed Signal Front-End Processors
+				\begin{itemize}
+					\item 4 DACs with sampling rate 128 MSPS $\to$ 2 I/Q TX channels
+					\item 4 ADCs with sampling rate 64 MSPS $\to$ 2 I/Q RX channels
+				\end{itemize}
+			\item Altera Cyclone FPGA for conversion to/from baseband,
+				decimation/interpolation, multiplexing and buffering
+			\item Cypress FX2 USB 2.0 interface
+			\item Daughterboards according to selected frequency range
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.25]{pics/usrp_ettus.jpg}\\
+		\small (Source: http://ettus.com)
+	\end{center}
+\end{frame}
+
+\section{Implementation}
+\subsection{OFDM Synchronisation}
+\begin{frame}
+	\frametitle{OFDM I -- Synchronisation}
+	\begin{block}{Time Synchronisation}
+		\begin{itemize}
+			\item Frame start detection must be accurate, as the other blocks
+				depend on it
+			\item Can easily be done by looking at the energy of the signal
+				(Null symbols)
+			\item Implemented with moving sum, inverter and peak detector
+		\end{itemize}
+	\end{block}
+	\begin{block}{Frequency Synchronisation}
+		\begin{itemize}
+			\item Small subcarrier spacing $\to$ accurate synchronisation needed
+			\item Fine frequency synchronisation (offsets $<$ subcarrier spacing)
+				\begin{itemize}
+					\item compare cyclic prefix to end of the symbol $\to$
+						fine frequency offset can be estimated from the phase
+						offset
+				\end{itemize}
+			\item Coarse frequency synchronisation (offsets $>$ subcarrier spacing)
+				\begin{itemize}
+					\item done after fine frequency synchronisation and after FFT
+					\item simply shift signal in the frequency domain $\to$ very efficient
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{OFDM Demodulation}
+\begin{frame}
+	\frametitle{OFDM II -- Demodulation}
+	\begin{block}{Demodulation}	
+		\begin{itemize}
+			\item Besides time and frequency synchronisation,
+				demodulation is rather straightforward
+			\item Sampler: Remove cyclic prefix, pack each OFDM symbol in a
+				vector
+			\item FFT
+			\item Calculate phase difference (undo the D in D-QPSK) 
+			\item Magnitude equalization (only needed for soft bits, as the
+				information is only in the phase)
+			\item Undo frequency interleaving: Mix symbols according to
+				sequence specified in DAB standard
+			\item I and Q components contain independent bits $\to$ simply
+				check if $\Re(x)>0$ and $\Im(x)>0$
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Evaluation}
+
+\subsection{Test Setup}
+
+\begin{frame}
+	\frametitle{Test Setup}
+	\begin{block}{Simulation Cycle}
+		\begin{itemize}
+			\item Generate random bytes
+			\item Modulation
+			\item Channel-model distorts OFDM signal
+			\item Demodulation
+			\item Calculate BER from original and received bytes
+		\end{itemize}
+	\end{block}
+	\begin{block}{Channel Model}
+		\begin{itemize}
+			\item Sampling frequency offset modeled by fractional interpolator
+			\item Multipath propagation modeled with FIR filter
+			\item Frequency offset (signal source + multiplication block)
+			\item AWGN (noise source + adder block)
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Results}
+
+\begin{frame}
+	\frametitle{Results -- SNR}	
+	\begin{center}
+		\includegraphics[scale=0.5]{../report/plots/snr_ber.png}
+	\end{center}
+\end{frame}
+
+
+\begin{frame}
+	\frametitle{Results -- Effects of Multipath Propagation}	
+	\begin{center}
+		\includegraphics[scale=0.4]{../report/plots/multipath_500kb.png}
+	\end{center}
+	\begin{center}
+		\begin{footnotesize}
+			\begin{tabular}{|l|c|c|c|c|}
+				\hline 
+				DAB Mode             & 1   & 2   & 3  & 4 \\
+				\hline
+				Cyclic Prefix Length & 504 & 126 & 63 & 252 \\
+				\hline 
+			\end{tabular}
+		\end{footnotesize}
+	\end{center}
+\end{frame}
+
+\section{Conclusions}
+\begin{frame}
+	\frametitle{Conclusions}
+
+	\begin{block}{Conclusions}
+		\begin{itemize}
+			\item Real-time processing is possible
+			\item FIBs successfully decoded 
+			\item No audio yet
+		\end{itemize}
+	\end{block}
+	\begin{block}{Challenges}
+		\begin{itemize}
+			\item Very efficient algorithms and programming needed
+			\item Many signal processing papers are written from a primarily
+				mathematical perspective
+		\end{itemize}
+	\end{block}
+	\begin{block}{Advantages}
+		\begin{itemize}
+			\item Same code for simulation and actual receiver 
+			\item Open source code of existing blocks helps understand algorithms
+			\item Existing code can sometimes be adapted for new purposes
+			\item GNU Radio: Large and enthusiastic community
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Questions}
+\begin{frame}
+	\frametitle{Questions?}
+	\begin{center}
+		\large{Thank you for your attention.}
+	\end{center}
+\end{frame}
+
+\end{document}
+

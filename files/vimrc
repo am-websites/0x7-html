@@ -1,0 +1,1137 @@
+scriptencoding utf-8
+
+"""""""""""
+" options
+"
+
+set nocompatible                 " want vim, not vi; must be first, because it changes other options
+
+set backspace=indent,eol,start   " allow backspacing over everything in insert mode
+set clipboard=unnamed,autoselect " automatically yank/paste to/from clipboard -> allow yank/paste between different xterms
+au VimEnter * set cpoptions+=n   " showbreak in numbers column; note: the autocmd is a workaround, because some scripts (taglists, vcscommand) misbehave
+if exists("+cscopequickfix")
+	set cscopequickfix=s-,c-,d-,i-,t-,e-  " quickfix list for cscope
+endif
+set display+=lastline            " show as much as possible of the last line if it doesn't fit (instead of @'s)
+set fileencodings=ucs-bom,utf-8,iso-8859-1      " encoding detection - ucs-bom must be first to enable byte-order marking
+set formatoptions+=2ln           " use the indent of the second line, do not wrap already-long-lines, recognize numbered lists
+set grepprg=grep\ --exclude=\\*\\.svn-base\ -n\ $*\ /dev/null
+set guicursor+=a:blinkon0
+set hidden                       " buffer is not unloaded when it is abandoned
+set history=500                  " keep N lines of command line history
+set incsearch                    " do incremental searching
+set isfname-==                   " = is not part of filenames -> filename completion works for file=xyz
+set laststatus=2                 " last window always has status line
+set lazyredraw                   " no screen updates while executing macros
+set linebreak                    " if wrap is on, break at characters in breakat, instead of in the middle of a word
+set listchars+=extends:>         " show > if line doesn't fit on screen
+set listchars+=precedes:<
+set mouse=a                      " use mouse in terminal vim if possible
+set mouseshape+=v:beam
+set nobackup                     " don't give me these whatever~ files
+set noerrorbells                 " don't make sound for errors
+set nojoinspaces                 " don't make two spaces after .!?
+set nottybuiltin                 " don't use builtin termcaps before external ones
+set nowrap                       " don't wrap lines if screen is too short
+set nowrapscan                   " searches don't wrap around end of file
+set nowritebackup
+set shiftwidth=4
+set showbreak=\ \ ↪\             " indicator for wrapped lines
+set showcmd                      " display incomplete commands
+set showmatch                    " please jump around when i'm entering brackets
+set showmode                     " tell me which mode we are in
+set smarttab                    
+if exists("+spelllang")
+	set spelllang=en         " setting it to more than one language (e.g. en,de) causes confusion when adding new words
+endif
+set swapsync=''                  " let unix decide when to sync -> may result in data loss, but creates less overhead if updatetime is low
+set tabstop=4
+set textwidth=0
+set timeout timeoutlen=1000 ttimeoutlen=100
+set title
+set updatetime=500               " faster updating of the taglist (also determindes updatetime for swapfile) ..
+set viminfo='20,\"50
+set virtualedit=block            " allow selecting over line end in visual block mode
+set visualbell                   " use visual error warning
+set wildmenu                     " command line completion in enhanced mode
+set wildmode=longest,list        " complete as long as possible, then show list
+set winaltkeys=no                " don't use alt keys for the menus, so they can be used in a mapping
+
+if (&t_Co > 2 || has("gui_running")) && has("syntax")      " syntax highlighting when the terminal has colors or there is a gui
+	syntax on
+endif
+
+let &statusline="%f%< %y[%{&fileencoding}/%{&encoding}/%{&termencoding}][%{&fileformat}]%m%r%w %=%b 0x%B  L:%l/%L  C:%(%c%V%)  %-4{GetArrayIndex()} %P"
+
+"""""""""""""
+" variables
+"
+
+" personal stuff
+let g:email = 'andrmuel@ee.ethz.ch'
+
+" settings for assorted purposes
+let g:args = ''
+let mapleader = '`'
+
+" programs
+let g:browser="firefox"
+let g:pdfviewer="kpdf"
+
+" don't highlight matching bracket (because it's confusing)
+" let loaded_matchparen = 1
+
+" taglist
+let Tlist_Use_SingleClick = 1           " one click opens tag in taglist
+let Tlist_Auto_Highlight_Tag = 1        " auto highlight is usefull, but scrolls the Tlist window around
+let Tlist_Enable_Fold_Column = 0
+let Tlist_Compact_Format = 1
+let Tlist_Exit_OnlyWindow = 1
+let Tlist_Show_Menu = 1
+let g:tlist_dtd_settings   = 'dtd;e:elements;a:attributes;n:entities'
+let g:tlist_make_settings  = 'make;m:makros;t:targets'
+let g:tlist_markdown_settings   = 'markdown;s:sections'
+let g:tlist_matlab_settings   = 'matlab;f:functions'
+let g:tlist_tex_settings   = 'latex;s:sections;g:graphics;l:labels'
+let g:tlist_vhdl_settings   = 'vhdl;d:package declarations;b:package bodies;e:entities;a:architecture specifications;t:type declarations;p:processes;f:functions;r:procedures'
+let g:tlist_wikipedia_settings   = 'wikipedia;s:sections;r:references'
+
+" TabBar
+let g:Tb_MaxSize = 3
+let g:Tb_TabWrap = 0 " 1 = NO tab wrapping
+
+" for EnhancedCommentify
+let g:EnhCommentifyTraditionalMode = 'no'       " yes: check for every line what should be done
+let g:EnhCommentifyFirstLineMode = 'yes'        " yes: use first line to check what to do; no effect when TraditionalMode is on
+let g:EnhCommentifyUseAltKeys = 'no'
+let g:EnhCommentifyRespectIndent = 'yes'        " yes: indent /*
+let g:EnhCommentifyPretty = 'yes'               " yes: /* comment */ instead of /*comment*/
+let g:EnhCommentifyMultiPartBlocks = 'yes'      " yes: use /* */ instead of //
+
+" for CCTree
+let g:CCTreeOrientation = 'botright'
+let g:CCTreeWindowMinWidth = '20'
+let g:CCTreeHilightCallTree = '0'
+
+" for VCScommand
+let VCSCommandMapPrefix = "<leader>V"
+let VCSCommandEnableBufferSetup = "0" " tries to connect to server on startup - not good
+
+" for gnupg
+let g:GPGPreferArmor = 1
+let g:GPGUseAgent = 0
+
+" for dbext
+let dbext_default_SQLITE_bin = 'sqlite3'
+
+"""""""""""""""""""
+" common mappings
+"
+
+" fix backspace from linux
+map!  <BS>
+
+" fix arrow keys from console
+map! OA <Up>
+map! OB <Down>
+map! OC <Right>
+map! OD <Left>
+
+" add consistency for Y to D and C
+map Y y$
+
+" jumping (if not provided by vim-latex)
+noremap <C-j> /<+[^+<>]*+><CR>:nohlsearch<CR>vf>
+inoremap <C-j> <Esc><C-c>/<+[^+<>]*+><CR>:nohlsearch<CR>vf>
+vnoremap <C-j> <Esc>/<+[^+<>]*+><CR>:nohlsearch<CR>vf>
+
+" useful stuff from emacs & co
+imap <C-b> <Left>
+imap <C-f> <Right>
+imap <C-a> <Home>
+imap <C-e> <End>
+
+" snippet loading (if variables are not needed, read can be used instead of InsertSnippet)
+map <C-s> :let $VIM_FT=&filetype<CR>:e $HOME/.vim/snippets/$VIM_FT/
+imap <C-s> <Space><Esc>:let $VIM_FT=&filetype<CR>:InsertSnippet $HOME/.vim/snippets/$VIM_FT/
+vmap <C-s> <Esc>:let $VIM_FT=&filetype<CR>gv:write $HOME/.vim/snippets/$VIM_FT/
+
+imap <S-CR> <Esc>o
+imap OM <Esc>o
+
+" function key mappings
+if exists(":ptag")
+	"map <F1>  :exe "silent! ptag " . expand("<cword>")<CR>
+	map <F1> :call PreviewTag()<CR>
+endif
+nmap <F2> :execute '!'.browser.' '.GetLookupURL(expand("<cword>"))<CR>
+vmap <F2> y:execute '!'.browser.' '.GetLookupURL(getreg('"'))<CR>
+map <F4> :w<CR>:execute '!./'.expand('%').' '.g:args<CR>
+map <F5> :w<CR>:make<CR>
+map <F6> :make check<CR> 
+map <F7> :make load<CR>
+map <F8> :make clean<CR>
+map <F9> :cprev<CR>zo
+map <S-F9> :cfirst<CR>zo
+map <F10> :cnext<CR>zo
+map <S-F10> :clast<CR>zo
+map <F11> :clist<CR>
+map <F12> :cwindow<CR>
+map <S-F11> :grep TODO %<CR>
+map <S-F12> :grep FIXME %<CR>
+
+" switch buffers with CTRL-arrow
+map <C-Right> :bnext<CR>
+map <C-Left> :bprev<CR>
+map <M-Left> :bfirst<CR>
+map <M-Right> :blast<CR>
+
+" Alt+N,P,F,L
+map î :bnext<CR>
+map ð :bprev<CR>
+map æ :bfirst<CR>
+map ì :blast<CR>
+
+" move in functions
+map <C-Up> [m
+map <C-P> [m
+map <C-Down> ]m
+map <C-N> ]m
+
+" mapleader mappings
+map <leader>l :TlistToggle<CR>
+map <leader>t :ToggleWord<CR>
+" select pasted text
+map <leader>v '[V']
+
+" mouse mappings
+map <2-LeftMouse> :exe "tag ". expand("<cword>")<CR>
+
+" easier digraphs for ä,ö,ü
+digraph aa 228
+digrap oo 246
+digraph uu 252
+
+" brackets and quotes
+inoremap () ()<++><Left>4h
+inoremap [] []<++><Left>4h
+inoremap {} {}<++><Left>4h
+inoremap "" ""<++><Left>4h
+inoremap """ """
+inoremap '' ''<++><Left>4h
+
+" calculator
+if has("python")
+	command! -nargs=+ Calc :py print <args>
+	py from cmath import *
+end
+
+" screen fun
+function! ScreenMappings()
+	map <buffer> <leader>s :silent !screen -X split<CR>:silent !screen -X focus down<CR>:silent !screen -X resize 10<CR>:silent !screen -X screen screened.sh bash<CR>:redraw!<CR>
+	if exists("b:interpreter")
+		map <buffer> <leader>i :silent !screen -X split<CR>:silent !screen -X focus down<CR>:silent !screen -X resize 10<CR>:silent execute '!screen -X screen screened.sh '.b:interpreter.' '.b:interpreter_args<CR>:silent !screen -X focus up<CR>
+		map <buffer> <CR> :echo system("screen -p ".b:interpreter." -X stuff '".escape(getline("."),"'\\")."\n'")<CR>j
+		vmap <buffer> <CR> :w! ~/.vim/tmp/shelleval.py<CR>:echo system("screen -p ".b:interpreter." -X stuff '%run ~/.vim/tmp/shelleval.py\n'")<CR>
+	endif
+endfunction
+
+" highlighting and color scheme
+if has("gui_running")
+	colorscheme desert
+	highlight Pmenu guibg=gray30 guifg=khaki
+	highlight NonText guibg=grey20
+endif
+
+""""""""""""""""""""""""""
+" file specific settings
+"
+
+function! LoadFiletypeSettings()
+	let l:ftfunction = 'FT_'.&filetype
+	if exists('*'.l:ftfunction)
+		exec 'call '.l:ftfunction.'()'
+	endif
+endfunction
+
+if has("autocmd")
+	filetype plugin indent on
+	" unknown filetypes
+	au BufNewFile,BufRead,BufEnter *.csv setlocal ft=csv
+	au BufNewFile,BufRead */itsalltext/* setlocal ft=itsalltext
+	au BufNewFile,BufRead *.mdwn setlocal ft=markdown
+	au BufNewFile,BufRead todo\|wait\|done\|someday setlocal ft=todo
+	au FileType plaintex setlocal filetype=tex
+	" filetype dependent settings
+	au FileType * call LoadFiletypeSettings()
+	" screen mappings
+	au BufNewFile,BufRead * call ScreenMappings()
+	" Word files
+	autocmd BufReadPre *.doc setlocal ro
+	autocmd BufReadPost *.doc silent %!antiword "%"
+	" filetype dependent templates
+	au BufNewFile * call LoadTemplate(&filetype,expand("%"))
+	" filetype dependent iabbrevs
+	au BufNewFile * call LoadIabbrevs()
+	" read cscope database if it exists
+	autocmd VimEnter * if filereadable('cscope.out') | execute 'CCTreeLoadDB cscope.out' | endif
+else
+	set autoindent
+endif 
+
+function! FT_c()
+	" c specific mappings
+	map <buffer> <F3> :w<CR>:!gcc -Wall % -o %<<CR>
+	" common mappings for c and c++
+	call FT_c_cpp() 
+endfunction
+
+function! FT_cpp()
+	setlocal expandtab shiftwidth=2 tabstop=2
+	" c++ specific mappings
+	map <buffer> <F3> :w<CR>:!g++ -Wall % -o %<<CR>
+	" common mappings for c and c++
+	call FT_c_cpp() 
+endfunction
+
+function! FT_c_cpp()
+	setlocal fileencoding=latin1
+	setlocal previewheight=1
+
+	map <buffer> <F4> :execute '!./'.expand('%<').' '.g:args<CR>
+	map <buffer> <leader>h :e %<.h<CR>
+	map <buffer> <leader>i :e %<.c*<CR>
+	inoremap <buffer> <leader><CR> <End>;<CR>
+	" input mappings for language structures
+	inoremap <buffer> <C-g> <Esc>A {<CR><BS>}<Esc>ko
+	" shortcuts
+	inoremap <buffer> <leader>p printf("\n");<Esc>4hi
+	" iabbrevs
+	iabbr /* /* */<Left><Left><Left>
+	NoSpellIabbr uint unsigned int
+	NoSpellIabbr for for (; <++>; <++>)<Left>12h<C-R>=EatSpace()<CR>
+	NoSpellIabbr if if ()<Left><C-R>=EatSpace()<CR>
+	NoSpellIabbr while while ()<Left><C-R>=EatSpace()<CR>
+	NoSpellIabbr cont continue
+	NoSpellIabbr ret return
+	NoSpellIabbr def #define
+	NoSpellIabbr inc #include
+
+	map <leader>d <Up>:call append(line('.'),Cdoxydocstring(getline(line('.')+1)))<CR>
+	function! Cdoxydocstring(line)
+		let l:args = split(split(split(a:line,'(')[1],')')[0],',')
+		let l:docstring = ['/*!',' * \brief <+brief+>']
+		for l:arg in l:args
+			let l:varname = substitute(split(l:arg,' ')[-1],'[[]]','','g')
+			call add(l:docstring,' * \param '.l:varname.' <+param+>')
+		endfor
+		call add(l:docstring,' *')
+		call add(l:docstring,' * <+description+>')
+		call add(l:docstring,' */')
+		return l:docstring
+	endfunction
+endfunction
+
+function! FT_java()
+	map <buffer> <F3> :w<CR>:!javac %<CR>
+	map <buffer> <F4> :execute '!java '.expand('%<').' '.g:args<CR>
+endfunction
+
+function! FT_perl()
+	map <buffer> <S-F1> :exe "!perldoc -f " . expand("<cword>")<CR>
+endfunction
+
+function! FT_python()
+	"setlocal makeprg=python\ %
+	map <F6> :!./run_tests.py<CR>
+	"from Vim script 477
+	" setlocal errorformat=
+	" \%A\ \ File\ \"%f\"\\\,\ line\ %l\\\,%m,
+	" \%C\ \ \ \ %.%#,
+	" \%+Z%.%#Error\:\ %.%#,
+	" \%A\ \ File\ \"%f\"\\\,\ line\ %l,
+	" \%+C\ \ %.%#,
+	" \%-C%p^,
+	" \%Z%m,
+	" \%-G%.%#
+	setlocal previewheight=5
+	" for pylint:
+	setlocal makeprg=pylint\ --report=n\ --rcfile=../pylintrc\ %
+	setlocal efm=%f:%l:\ [%t]%m,%f:%l:%m
+
+	let b:interpreter="ipython"
+	let b:interpreter_args="-profile vim" " vim profile has autoindent 0
+
+	" matchit
+	let b:match_words = '\<if\>:\<elif\>:\<else\>'
+
+	" folding
+	set foldminlines=5
+	set foldcolumn=1
+	set foldlevel=0
+	set foldnestmax=1
+	set foldmethod=expr
+	set foldexpr=PyFoldExpr(v:lnum)
+	function! PyFoldExpr(lnum)
+		let l:indent = indent(a:lnum) / &tabstop
+		if l:indent == 0
+			return 0
+		elseif l:indent == 1 && getline(a:lnum-1) =~ "^\\(def \\|if __name__ == '__main__':\\)"
+			return 1
+		elseif l:indent >= 2
+			return 1
+		elseif getline(a:lnum) =~ "^\\tdef " && getline(a:lnum-1) =~ "^\\s*$"
+			return 0
+		else
+			return foldlevel(a:lnum-1)
+		endif
+	endfunction
+	set foldtext=PyFoldText()
+	function! PyFoldText()
+		let l:text = "    ".(v:foldend-v:foldstart+1)." lines: "
+		if getline(v:foldstart) =~ '^[ \t]*"""[ \t]*$'
+			let l:text .= getline(v:foldstart+1)
+		else
+			let l:text .= getline(v:foldstart)
+		endif
+		return l:text
+	endfunction
+
+	map <buffer><silent> <S-F1> :setlocal iskeyword+=.<CR>:let b:pydoc_word = expand("<cword>")<CR>:setlocal iskeyword-=.<CR>:call FT_python_showdoc(b:pydoc_word)<CR>
+	map <buffer> <S-F3> :!chmod u+x %<CR>
+	map <buffer> <S-F4> :echo system("screen -p ".b:interpreter." -X stuff '%run ".expand("%")." ".g:args."\n'")<CR>
+	map <buffer> <leader>d V:!~/.vim/tools/pydocstring.py<CR>jjA
+
+	map <buffer> <F6> :!./run_tests.py<CR>
+	imap <buffer> <leader><CR> <End>:<CR>
+
+	command! TODO grep -R -E "TODO\|FIXME" *.py
+	" abbreviations
+	NoSpellIabbr class class:<CR>"""<CR><+docstring+><CR>"""<CR><++><Esc>4k$i
+	NoSpellIabbr def def(self<++>):<CR><++><Up><Home>f(
+	NoSpellIabbr defi def __init__(self):<CR><++><Esc><Up>$hi=EatSpace()<CR>
+	NoSpellIabbr for for in <++><Left>7h
+	NoSpellIabbr from from import <++><Left>11h
+	NoSpellIabbr nn None
+	NoSpellIabbr ret return
+	NoSpellIabbr cont continue
+	" auto omnicomplete
+	imap <silent><buffer><expr> . (IsSpell()?".":".<C-x><C-o><C-p>")
+	" pydoc integration
+	command! -nargs=1 Pydoc call FT_python_showdoc("<args>")
+	function! FT_python_showdoc(name)
+		new
+		execute "read !pydoc " . a:name
+		setlocal nomodifiable
+		setlocal nomodified
+		setlocal nobuflisted
+		set filetype=man
+		normal 1G
+	endfunction
+	" additional highlighting
+	syntax keyword pythonBoolean True False
+	highlight link pythonBoolean Boolean
+	if has("gui_running")
+		syntax match Indent /^\s\+/
+		syntax match IndentTab /\t\+/ containedin=Indent contained
+		syntax match IndentSpace / \+/ containedin=Indent contained
+		syntax match WhitespaceEnd /[^ \t]\s\+$/ms=s+1
+		if g:colors_name == "desert"
+			highlight IndentSpace guibg=gray25
+			highlight WhitespaceEnd guibg=gray30
+		else
+			highlight IndentSpace guibg=#F0FFF0
+			highlight WhitespaceEnd guibg=#FFE0E0
+		endif
+	endif
+endfunction
+
+function! FT_sh()
+	let b:interpreter = "bash"
+endfunction
+
+function! FT_vhdl()
+	if exists("+omnifunc")
+		setlocal omnifunc=syntaxcomplete#Complete
+	endif
+	setlocal makeprg=gmake
+	setlocal errorformat=**\ Error:\ %f(%l):\ %m
+	let g:vhdl_indent_genportmap=0
+	" command mappings for perl scripts
+	command! -nargs=1 -complete=file VHDLcomp r! ~/.vim/tools/vhdl_comp.pl <args>
+	command! -nargs=1 -complete=file VHDLinst r! ~/.vim/tools/vhdl_inst.pl <args>
+	" environments
+	imap <buffer> <C-g>e <Esc>bdwientity <Esc>pa is<CR>end entity ;<Esc>POport (<CR>);<Esc>O
+	imap <buffer> <C-g>a <Esc>b"zdwiarchitecture <Esc>pa of <Esc>mz?entity<CR>wyw`zpa is<CR>begin<CR>end architecture ;<Esc>"zPO
+	imap <buffer> <C-g>p <Esc>bywA : process ()<CR>begin<CR>end process ;<Esc>PO<+process body+><Esc>?)<CR>i
+	imap <buffer> <C-g>g <Esc>bdwipackage <Esc>pa is<CR><BS>end package ;<Esc>PO    
+	imap <buffer> <C-g>c case  is<CR>when <+state1+> =><CR><+action1+><CR>when <+state2+> =><CR><+action2+><CR>when others => null;<CR>end case;<Esc>6k$2hi
+	imap <buffer> <C-g>i if  then<CR><+do_something+>;<CR>elsif <+condition2+> then<CR><+do_something_else+>;<CR>else<CR><+do_something_else+>;<CR>end if;<Esc>6k$4hi
+	" shortcuts
+	imap <buffer> ,, <= 
+	imap <buffer> .. => 
+	imap <buffer> <C-s>i <Esc>:VHDLinst 
+	imap <buffer> <C-s>c <Esc>:VHDLcomp
+	" alt key mappings
+	imap <buffer> <M-i> <Esc>owhen 
+	" abbreviations
+	iabbr <buffer> dt downto
+	iabbr <buffer> sig signal
+	iabbr <buffer> gen generate
+	iabbr <buffer> ot others
+	iabbr <buffer> sl std_logic
+	iabbr <buffer> slv std_logic_vector
+	iabbr <buffer> uns unsigned
+	iabbr <buffer> toi to_integer
+	iabbr <buffer> tos to_unsigned
+	iabbr <buffer> tou to_unsigned
+	imap <buffer> I: I : in 
+	imap <buffer> O: O : out 
+endfunction
+
+function! FT_text()
+	setlocal spell
+	setlocal textwidth=78   " width is 78 characters for textfiles
+endfunction
+
+function! FT_tex()
+	setlocal ignorecase infercase
+	setlocal spell
+	setlocal textwidth=78
+	let g:tex_indent_structure = 0
+
+	" syntax highlighting
+	syn sync minlines=1 maxlines=10 " makes syntax highlighting faster
+
+	" compiler and compiler mappings
+	setlocal makeprg=pdflatex\ \-file\-line\-error\ \-interaction=nonstopmode\ $*\\\|\ grep\ \-E\ '\\w+:[0-9]{1,4}:\\\ '
+	" setlocal makeprg=englint.py
+	setlocal errorformat=%f:%l:\ %m
+	map <buffer> <F3> :w<CR>:make %<<CR>
+	map <buffer> <F4> :!kpdf %<.pdf &<CR>
+	map <buffer> <F5> :w<CR>:!make<CR>
+	map <buffer> <F7> :!make view<CR> 
+	map <buffer> <F8> :!make clean<CR>
+
+	" noremap <buffer> <F10> viws\texttt{}<Esc>P
+	" inoremap <buffer> <F10> <Esc>viws\texttt{}<Esc>Pla
+	" noremap <buffer> <F11> viws\textit{}<Esc>P
+	" inoremap <buffer> <F11> <Esc>viws\textit{}<Esc>Pla
+	noremap <buffer> <F12> viws\ac{}<Esc>P
+	inoremap <buffer> <F12> <Esc>viws\ac{}<Esc>Pla
+	noremap <buffer> <S-F12> viws\acp{}<Esc>P
+	inoremap <buffer> <S-F12> <Esc>viws\acp{}<Esc>Pla
+
+	" visuals
+	vn <M-b> s\textbf{}<ESC>P          " bold
+	vn <M-i> s\textit{}<ESC>P          " italic
+	vn <M-t> s\texttt{}<ESC>P          " teletype
+	vn <M-e> s\begin{}<CR>\end{}<ESC>0Pk$i
+
+	" shortcuts for input mode
+	" the following works without eigthBitMode:
+	" imap <buffer> <Esc>i <Esc>o\item<Space>
+	imap <buffer> <leader>i <Esc>o\item<Space>
+	" the following works with rxvt --meta8 or xterm -xrm '*metaSendsEscape:false' or gvim
+	imap <buffer> <M-i> <Esc>o\item<Space>
+	" sections etc
+	inoremap <buffer> <leader>s \section{}<CR><Esc>k$i
+	inoremap <buffer> <leader>u \subsection{}<CR><Esc>k$i
+	inoremap <buffer> <leader>b \subsubsection{}<CR><Esc>k$i
+	inoremap <buffer> <leader>p \paragraph{}<CR><Esc>k$i
+	" environments
+	inoremap <buffer> <C-g> <Esc>diWi\begin{}<Esc>Po\end{}<Esc>PO
+	inoremap <buffer> <C-l> }<Esc>bi\<Esc>ea{
+	inoremap <buffer> <C-g>a <Esc>o\begin{align*}<CR>\end{align*}<Esc>ko
+	inoremap <buffer> <C-g>b <Esc>o\begin{block}{}<CR><++><CR>\end{block}<Esc>2k$i
+	inoremap <buffer> <C-g>c <Esc>o\begin{center}<CR>\end{center}<Esc>ko
+	inoremap <buffer> <C-g>d <Esc>o\begin{description}<CR>\end{description}<Esc>ko<Tab>
+	inoremap <buffer> <C-g>e <Esc>o\begin{enumerate}<CR>\end{enumerate}<Esc>ko\item 
+	inoremap <buffer> <C-g>f <Esc>o\begin{frame}<CR>\frametitle{}<CR><+content+><CR>\end{frame}<CR><++><Esc>3k$i
+	inoremap <buffer> <C-g>g <Esc>o\begin{center}\includegraphics[scale=]{<+filename+>}\end{center}<ESC>F=a
+	inoremap <buffer> <C-g>i <Esc>o\begin{itemize}<CR>\end{itemize}<Esc>ko\item 
+	inoremap <buffer> <C-g>q <Esc>o\begin{quotation}<CR>\end{quotation}<Esc>ko
+	inoremap <buffer> <C-g>t <Esc>o\begin{tabular}{<++>}<CR>\end{tabular}<Esc>ko<++><Esc>k0<C-j>
+	inoremap <buffer> <C-g>v <Esc>o\begin{verbatim}<CR>\end{verbatim}<Esc>ko
+	"greek letters
+	let b:greek = {'a':'alpha', 'b':'beta', 'g':'gamma', 'G':'Gamma', 'd':'delta', 'e':'epsilon', 'z':'zeta', 'h':'theta', 'H':'Theta', 'i':'iota', 'k':'kappa', 'l':'lambda', 'L':'Lambda', 'm':'mu', 'n':'nu', 'x':'xi', 'X':'Xi', 'p':'pi', 'r':'rho', 's':'sigma', 'S':'Sigma', 't':'tau', 'u':'upsilon', 'U':'Upsilon', 'f':'phi', 'F':'Phi', 'c':'chi', 'y':'psi', 'Y':'Psi', 'w':'omega', 'W':'Omega'}
+	imap <buffer> <leader>g \<Esc>hx:execute "normal a".b:greek[getreg()]<CR>a
+	" some more key mappings
+	imap <buffer> <> \langle \rangle<++><Esc>10hi
+	imap <buffer> << \left\langle  \right\rangle<++><Esc>17hi
+	imap <buffer> \|\| \left\|  \right\|<++><Esc>11hi
+	" close \[ automatically
+	imap <buffer> \[ \[\]<Esc>hi
+	" arrows
+	NoSpellIabbr => \Rightarrow
+	NoSpellIabbr <= \Leftarrow
+	NoSpellIabbr <=> \Leftrightarrow
+	NoSpellIabbr ==> \Longrightarrow
+	NoSpellIabbr <== \Longleftarrow
+	NoSpellIabbr <==> \Longleftrightarrow
+	NoSpellIabbr -> \rightarrow
+	NoSpellIabbr <- \leftarrow
+	NoSpellIabbr <-> \leftrightarrow
+	NoSpellIabbr --> \longrightarrow
+	NoSpellIabbr <-- \longleftarrow
+	NoSpellIabbr <--> \longleftrightarrow
+
+	" some adjustments for spell checking (could be added directly to tex.vim)
+	" do not spell check in comments
+	syn cluster texCommentGroup     contains=texTodo,@NoSpell
+	" do not spell check in the following environments
+	syn region texZone       start="\\myweblink{"           end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\hyphenation{"         end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\email{"               end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\texttt{"              end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\setcounter{"          end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\url{"                 end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\ac{"                  end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\acs{"                 end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\acp{"                 end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\acl{"                 end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\acf{"                 end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\xmlelement{"          end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\xmlattribute{"        end="}\|%stopzone\>"    contains=@NoSpell
+	syn region texZone       start="\\begin{lstlisting}"    end="\\end{lstlisting}\|%stopzone\>"    contains=@NoSpell
+
+	" for latexsuite: revert mappings
+	if exists("*IMAP")
+		call IMAP ('{}','{}',"tex")
+		call IMAP ('==','==',"tex")
+		call IMAP ('::','::',"tex")
+	endif
+
+	" temporary fix for unknown problem
+	let @/ = ""
+endfunction
+
+function! FT_mail()
+	" try to remove signature from quoted text
+	try | :%s/>> -- $\n\(>> .*\n\)*// | catch | endtry
+	try | :%s/> -- $\n\(> .*\n\)*// | catch | endtry
+	" try to remove other unwanted stuff
+	try | :%s/> _\{40,}\n\(> .*\n\)*// | catch | endtry
+	try | :%s/> -\{40,}\n\(> .*\n\)*// | catch | endtry
+	" try to convert quoting: > > -> >>
+	try | :%s/^> >/>>/ | catch | endtry
+	try | :%s/^>> >/>>>/ | catch | endtry
+	try | :%s/^>>> >/>>>>/ | catch | endtry
+	" remove multiple blank lines
+	try | %s/\(^>\n\)\{2,}/>\r/g | catch | endtry
+	" go to start
+	normal gg
+	" settings
+	setlocal ignorecase infercase
+	setlocal spell spelllang=de
+	setlocal nohls
+	let @/ = '^>[ \t]*$'
+	" do not set the file encoding -> use whatever $LANG is set to; mutt will assume it's that one too
+	" setlocal fileencoding=iso8859-1
+	" colors (matches mutt colors):
+	highlight mailQuoted1 guifg=#000050 ctermfg=4 " blue
+	highlight mailQuoted2 guifg=#a00000 ctermfg=1 " red
+	highlight mailQuoted3 guifg=#006000 ctermfg=2 " green
+	highlight mailQuoted4 guifg=#600060 ctermfg=5 " magenta
+	highlight mailQuoted5 guifg=#B07000 ctermfg=3 " yellow
+	" variables
+	let b:url_nr = 1
+	" visual mappings
+	vmap <buffer> . c> [...]<Esc>
+	" insert mode mappings
+	imap <buffer> <C-l> :call FT_mail_insert_url()<CR>
+	imap <buffer> <C-u> <Esc>yypVr-o
+	map <buffer> <F2> :%g/^>\( \?>\)/d<CR>
+	map <buffer> <F3> :%g/^>\( \?>\)\{2}/d<CR>
+	map <buffer> <F4> :%g/^>\( \?>\)\{3}/d<CR>
+	map <buffer> <leader>q :%s/=\(\x\x\)/\=nr2char(str2nr(submatch(1),16))/g<CR>
+
+	" abbreviations
+	" Begruessung
+	iabbr <buffer> gt Guten Tag!
+	iabbr <buffer> gth Guten Tag Herr
+	iabbr <buffer> gtf Guten Tag Frau
+	iabbr <buffer> sgduh Sehr geehrte Damen und Herren
+	iabbr <buffer> sgh Sehr geehrter Herr
+	iabbr <buffer> sgf Sehr geehrte Frau
+	iabbr <buffer> ha Hallo
+	iabbr <buffer> hz Hallo zusammen
+	" Verabschiedung
+	iabbr <buffer> ga Gru:sse, Andreas
+	iabbr <buffer> fgam Freundliche Gru:sse,<CR>Andreas Mu:ller
+	iabbr <buffer> mfgam Mit freundlichen Gru:ssen<CR>Andreas Mu:ller
+	iabbr <buffer> bdufgam Besten Dank und freundliche Gru:sse,<CR>Andreas Mu:ller
+	iabbr <buffer> ra Regards, Andreas
+	iabbr <buffer> kra Kind regards, Andreas
+	" Floskeln und Abkuerzungen -> besser zerlegen
+	iabbr <buffer> bd Besten Dank
+	iabbr <buffer> sigzv stehe ich gerne zur Verfu:gung.
+	iabbr <buffer> bdfdsr Besten Dank für die schnelle Rückmeldung.
+	iabbr <buffer> bdfdr Besten Dank fu:r die Ru:ckmeldung.
+	iabbr <buffer> ffsigzv Fu:r Fragen stehe ich gerne zur Verfu:gung.
+
+	function! FT_mail_insert_url()
+		let l:url = input("URL: ")
+		execute "normal a[".b:url_nr."]\<Esc>mzG"
+		try 
+			execute "?^-- $"
+			if b:url_nr == 1
+				normal Ok
+			else
+				normal kk
+			endif
+		catch
+		endtry
+		execute "normal o[".b:url_nr."] ".l:url."\<Esc>`za"
+		let b:url_nr += 1
+	endfunction
+endfunction
+
+function! FT_csv()
+	setlocal tabstop=30
+	setlocal cursorline
+	setlocal scrollbind
+	map <buffer> <F3> :%s/,/\t/g<CR>
+	map <buffer> <F4> :%s/\t/,/g<CR>
+	" map <buffer> <F12> :20vsplit<CR>
+endfunction
+
+function! FT_itsalltext()
+	setlocal wrap number
+	setlocal spell
+	setlocal fileencoding=utf8
+
+	if expand('%') =~ 'wikipedia'
+		setlocal ft=wikipedia
+	endif
+endfunction
+
+function! FT_markdown()
+	setlocal spell spelllang=de
+	setlocal textwidth=78
+	setlocal formatoptions=tcq2ln
+
+	map <buffer> <F1> yypVr=
+	map <buffer> <F2> yypVr-
+	map <buffer> <F3> :!markdown % > %.html<CR>
+	vmap <buffer> <F3> :!markdown > %.html<CR>u
+	map <buffer> <F4> :!firefox %.html<CR>
+	map <buffer> <F9> :%!~/.vim/tools/reorder_references.py<CR>
+	map <buffer> <F12> :wa<CR>:!svn ci<CR>
+	inoremap <buffer> <leader><CR> <Esc>:call FT_markdown_newline()<CR>A
+	function! FT_markdown_newline()
+		let l:pattern = @/
+		if getline(line('.')) =~ "^\\s*\\d\\."
+			normal yyp0
+			s/^\(\s*\d\+\.\).*/\1 /
+		elseif getline(line('.')) =~ "^\\s*[*+-]"
+			normal yyp
+			s/^\(\s*[*+-]\).*/\1 /
+		endif
+		let @/ = l:pattern
+	endfunction
+endfunction
+
+function! FT_wikipedia()
+	setlocal syntax=wikipedia
+	setlocal spell spelllang=de
+	setlocal wrap number
+
+	syn spell toplevel " also do spell checking for text not in a syntax item
+	
+	" insert mode mappings
+	imap <buffer> <CR> <Esc>:call FT_wiki_stars()<CR>
+	inoremap  <Esc>mz0i*<Esc>`zla
+	inoremap  <Esc>hmz0x`za
+	" shortcuts
+	imap <buffer> <leader>s --~~~~
+
+	function! FT_wiki_stars()
+		if strlen(getline("."))==getpos(".")[2] " we're at the end of the line
+			let numstars = matchend(getline("."),"^\**")
+			normal o
+			if numstars > 0
+				execute "normal ".numstars."i*a "
+			endif
+			startinsert!
+		else
+			iunmap <buffer> <CR>
+			normal a
+			imap <buffer> <CR> <Esc>:call FT_wiki_stars()<CR>
+			startinsert
+		endif
+	endfunction
+endfunction
+
+function! FT_dtd()
+	setlocal et tw=80
+	setlocal indentexpr=
+	setlocal autoindent
+
+	inoremap <buffer> <leader>- <!-- --><Esc>3hi 
+	inoremap <buffer> <leader>e <!ELEMENT ><Esc>i
+	inoremap <buffer> <leader>a <!ATTLIST ><Esc>i
+	inoremap <buffer> <leader>n <!ENTITY % ><Esc>i
+endfunction
+
+function! FT_xml()
+	setlocal nohls
+	let b:doctype = ""
+	if search('<!DOCTYPE ','wn')>0
+		let b:doctype = split(split(getline(search('<!DOCTYPE ','wn')),' ')[-1],'"')[0]
+		execute 'setlocal makeprg=xmllint\ --dtdvalid\ '.b:doctype
+		execute 'XMLns '.split(b:doctype,'\.')[0]
+	else 
+		setlocal makeprg=xmllint
+	endif
+	setlocal errorformat=%f:%l:\ %m
+	
+	map <buffer> <F3> :w<CR>:silent make %<CR>:redraw!<CR>:cwindow 5<CR>
+	map <buffer> <F4> :!xmlstarlet
+
+	inoremap <buffer> <C-l> <Esc>bi<<Esc>ea/>
+	inoremap <buffer> <C-g> <Esc>byei<<Esc>ea></><Esc>PF<i
+	inoremap <buffer> <leader>- <!-- --><Esc>3hi 
+	inoremap <buffer> <leader><CR> <CR>O
+endfunction
+
+function! FT_html()
+	setlocal spell spelllang=en
+	setlocal ignorecase infercase
+	setlocal makeprg=tidy\ \-eq
+	setlocal errorformat=line\ %l\ column\ %c\ \-\ %trror:\ %m,line\ %l\ column\ %c\ \-\ %tarning:\ %m
+
+	map <buffer> <F3> :w<CR>:silent make %<CR>:redraw!<CR>:cwindow 5<CR>:wincmd p<CR>
+	map <buffer> <F4> :w<CR>:execute '!'.browser.' '.expand("%")." &"<CR>
+	map <buffer> <F12> :w<CR>:!linklint -net %<CR>
+
+	inoremap <buffer> <leader>b <br>
+	inoremap <buffer> <C-l> </a><++><Left>7hb<a href="">2h
+	vmap <buffer> <C-l> c<a href="<Esc>mza"><Esc>pa</a><++><Esc>`za
+	" inoremap <buffer> <C-g> <Esc>diW:let url="http://de.wikipedia.org/wiki/".getreg('""')<CR>:let link="<a href=\"".url."\">".getreg('""')."</a>"<CR>a=link<CR><Esc>:execute "!".browser." ".url<CR>a
+	" inoremap <buffer> <C-g>e <Esc>diW:let url="http://en.wikipedia.org/wiki/".getreg('""')<CR>:let link="<a href=\"".url."\">".getreg('""')."</a>"<CR>a=link<CR><Esc>:execute "!".browser." ".url<CR>a
+
+	inoremap <buffer> <C-g> <Esc>diwi<><Esc>Pla</><Esc>PF<i
+	vmap <buffer> <C-g> <Esc>:call inputsave()\|let tag=input("tag: ")\|call inputrestore()<CR>gvc<=tag<CR>><Esc>pa</=tag<CR>>
+	" headers
+	inoremap <buffer> <C-g>1 <Esc>^i<h1><End></h1>
+	inoremap <buffer> <C-g>2 <Esc>^i<h2><End></h2>
+	inoremap <buffer> <C-g>3 <Esc>^i<h3><End></h3>
+	inoremap <buffer> <C-g>4 <Esc>^i<h4><End></h4>
+	inoremap <buffer> <C-g>5 <Esc>^i<h5><End></h5>
+	inoremap <buffer> <C-g>6 <Esc>^i<h6><End></h6>
+	" tables
+	inoremap <buffer> <C-g>t <Esc>o<table border="1"><CR></table><Up><End>
+	inoremap <buffer> <C-g>r <Esc>o<tr><CR></tr><Up><End><CR>
+	inoremap <buffer> <C-g>d <Esc>A<td></td><Esc>4hi
+	inoremap <buffer> <C-g>h <Esc>A<th></th><Esc>4hi
+	" lists
+	inoremap <buffer> <C-g>u <Esc>o<ul><CR></ul><Up><End>
+	inoremap <buffer> <C-g>o <Esc>o<ol><CR></ol><Up><End>
+	inoremap <buffer> <C-g>l <Esc>o<li></li><Esc>4hi
+	" assorted
+	inoremap <buffer> <C-g>p <Esc>o<p></p><Esc>3hi
+	inoremap <buffer> <C-g>i <img src="" alt="<+alt+>"><Esc>15hi
+endfunction
+
+function! FT_todo()
+	setlocal foldmethod=expr foldnestmax=1
+	setlocal foldexpr=FT_todo_fold(v:lnum)
+	setlocal foldtext=strpart(getline(v:foldstart),0,stridx(getline(v:foldstart),':')+1).'\ '.(v:foldend-v:foldstart+1).'\ todo\ items\ [+]'
+	setlocal foldminlines=2
+	setlocal fillchars=fold:\ 
+	map <buffer> <F1> :setlocal nofoldenable<CR>:sort<CR>
+	map <buffer> <F2> :setlocal nofoldenable<CR>:sort /\[\d\]/ r<CR>
+	map <buffer> <F3> :setlocal nofoldenable<CR>:sort /@.*/ r<CR>
+	map <buffer> <F4> :setlocal nofoldenable<CR>:sort /+.*/ r<CR>
+	map <buffer> <F9> :call FT_todo_priority_down()<CR>
+	map <buffer> <F10> :call FT_todo_priority_up()<CR>
+	map <buffer> <Space> V:!todo.py ticker<CR>
+
+	function! FT_todo_fold(linenum)
+		if a:linenum==1
+			return '>1'
+		else
+			let l:str = getline(a:linenum)
+			let l:laststr = getline(a:linenum-1)
+			if l:str =~ '^[^:]\+\[[123]\]:'
+				return 0
+			elseif strpart(l:str,0,(stridx(l:str,':')))==strpart(l:laststr,0,(stridx(l:laststr,':')))
+				return '='
+			else
+				return '>1'
+			endif
+		endif
+	endfunction
+	function! FT_todo_priority_down()
+		if getline(line('.')) =~ '^[^:\[\]]\+:'
+			normal 0f:i[9]
+		elseif getline(line('.')) =~ '^[^:]\+\[1\]:'
+			normal 0f:3X
+		else
+			normal 0
+		endif
+	endfunction
+	function! FT_todo_priority_up()
+		if getline(line('.')) =~ '^[^:\[\]]\+:'
+			normal 0f:i[1]
+		elseif getline(line('.')) =~ '^[^:]\+\[9\]:'
+			normal 0f:3X
+		else
+			normal 0
+		endif
+	endfunction
+endfunction     
+
+function! FT_mp()
+	map <buffer> <F3> :w<CR>:!mpost %<CR>
+	map <buffer> <F4> :w<CR>:!mptopdf %<CR>:!kpdf %<-1.pdf<CR>
+endfunction
+
+function! FT_dot()
+	map <buffer> <F3> :w<CR>:!dot -Tpng % -o%<.png<CR>
+	map <buffer> <S-F3> :w<CR>:!dot -Tsvg % -o%<.svg<CR>
+	map <buffer> <F4> :w<CR>:!kuickshow %<.png<CR>
+endfunction
+
+""""""""""""""""""""
+" helper functions
+"
+
+" load templates
+function! LoadTemplate(filetype,filename)
+	" latex files (multiple templates)
+	if a:filetype == "plaintex" || a:filetype == "tex"
+		if a:filename =~ ".*letter.*\.tex" || a:filename =~ ".*brief.*\.tex$"
+			0r ~/.vim/templates/brief.tex
+		elseif a:filename =~ ".*slides.*\.tex$" || a:filename =~ ".*folien.*\.tex"
+			0r ~/.vim/templates/slides.tex
+		elseif a:filename =~ "\.tex$"
+			0r ~/.vim/templates/artikel.tex
+		endif
+		setlocal fileencoding=latin1
+		setlocal filetype=tex
+		return
+	endif
+	
+	" all other filetypes
+	let l:templatefile = $HOME . "/.vim/templates/" . a:filetype
+
+	" for python test cases
+	if a:filetype == "python" && a:filename =~ "test.*\.py"
+		let l:templatefile = $HOME . "/.vim/templates/unittest.py"
+	endif
+
+	if filereadable(l:templatefile)
+		execute "0r " l:templatefile
+	endif
+
+	" replace $template:date$, etc ..
+	call ReplaceTemplateVariables(expand("%:p:h"),expand("%:t"),expand("%:t:r"))
+endfunction
+
+" replacement for $template:xy$ in templates
+function! ReplaceTemplateVariables(path,filename,fileroot)
+	if exists("*strftime")
+		try | %s+\$template:date\$+\=strftime("%-d.%-m.%Y")+g | catch | endtry
+		try | %s+\$template:year\$+\=strftime("%Y")+g         | catch | endtry
+	endif
+	try | %s/\$template:email\$/\=g:email/g                                                                  | catch | endtry
+	try | %s/\$template:filename\$/\=a:filename/g                                                            | catch | endtry
+	try | %s/\$template:path\$/\=a:path/g                                                                    | catch | endtry
+	try | %s/\$template:fileroot\$/\=a:fileroot/g                                                            | catch | endtry
+	try | %s/\$template:fileroot_uc\$/\=toupper(strtrans(a:fileroot))/g                                      | catch | endtry
+	try | %s/\$template:fileroot_cc\$/\=toupper(strtrans(a:fileroot)[0]).tolower(strtrans(a:fileroot)[1:])/g | catch | endtry
+	try | %s/\$template:fileroot_lc\$/\=tolower(strtrans(a:fileroot))/g                                      | catch | endtry
+	1
+endfunction
+
+" insert a snippet
+function! InsertSnippet(filename)
+	if filereadable(a:filename)
+		let l:path = expand("%:p:h")
+		let l:filename = expand("%:t")
+		let l:fileroot = expand("%:t:r")
+		let l:returnto = bufname("%")
+		silent normal mz
+		silent execute "e ".a:filename
+		call ReplaceTemplateVariables(l:path,l:filename,l:fileroot)
+		1
+		silent normal yG
+		let l:oldbuf = bufname("%")
+		execute "buffer! ".l:returnto
+		silent execute "bdelete! ".l:oldbuf
+		silent normal 'z
+		normal ]P
+	else
+		echo "file not readable: " . a:filename
+	endif
+endfunction
+command! -nargs=1 -complete=file InsertSnippet call InsertSnippet("<args>")
+
+" insert iabbrevs from file
+function! LoadIabbrevs()
+	let l:filename = $HOME."/.vim/iabbrev/".&filetype
+	if filereadable(filename)
+		let l:lines = readfile(l:filename)
+		for l:line in l:lines
+			let l:entries = split(l:line," ")
+			if len(l:entries) >= 2
+				execute "iabbrev <buffer> ".l:entries[0]." ".join(l:entries[1:]," ")
+			endif
+		endfor
+	endif
+endfunction
+
+" auto header files
+autocmd BufNewFile *.{h,hpp} call <SID>insert_gates()
+function! s:insert_gates() 
+	let gatename = substitute(toupper(expand("%:t")), "\\.", "_", "g") 
+	execute "normal! i#ifndef _" . gatename 
+	execute "normal! o#define _" . gatename . " " 
+	execute "normal! Go#endif /* _" . gatename . " */" 
+	normal! kk 
+endfunction 
+
+au BufEnter * call TagTitle()
+function! TagTitle()
+	if exists(":TlistUpdate")       " show current tag in title
+		TlistUpdate
+		set titlestring=%<%f\ %([%{Tlist_Get_Tagname_By_Line()}]%)
+	endif
+endfunction
+
+function! PreviewTag()
+	if &previewwindow                  " don't do this in the preview window
+		return
+	endif
+	let w = expand("<cword>")          " get the word under cursor
+	if w =~ '\a'                       " if the word contains a letter
+		try                             " Try displaying a matching tag for the word under the cursor
+			 exe "ptag " . w
+		catch
+			return
+		endtry
+		silent! wincmd P                " jump to preview window
+		if &previewwindow               " if we really get there...
+			if has("folding")
+				silent! .foldopen            " don't want a closed fold
+			endif
+			exe 'normal! zt'
+			"wincmd p                       " back to old window
+			wincmd b
+		endif
+	endif
+endfunction
+
+" expandtab after non-blanks
+" to convert already entered tabs: :set et| retab| set noet| %>| %<
+ino <silent><tab> <c-r>=<sid>tabet()<cr><c-o>:call<sid>restoret()<cr>
+" set 'expandtab' when needed and return <Tab>
+func! <sid>tabet()
+	if !&expandtab && virtcol(".")-1 > indent(".")
+		let s:restoret = 1
+		set expandtab
+	else
+		let s:restoret = 0
+	endif
+	return "\<tab>"
+endfunc
+" restore 'expandtab'
+func! <sid>restoret()
+    if s:restoret
+	set noexpandtab
+    endif
+endfunc
+
+" iabbrev that is only active outside @Spell
+command! -nargs=+ NoSpellIabbr execute "inoreabbrev <buffer><expr> ".split(<q-args>,' ')[0]." (IsSpell()?'".split(<q-args>,' ')[0]."':'".join(split(<q-args>,' ')[1:],' ')."')"
+function! IsSpell()
+	return synIDattr(synID(line("."), col(".") - 1, 1), "name") =~? 'comment\|string'
+endfunction
+
+function! EatSpace()
+      let c = nr2char(getchar(0))
+      return (c =~ ' ') ? '' : c
+endfunction
+
+" display array index
+function! GetArrayIndex()
+	let [l:lnum, l:col] = searchpos('[[(]','bn',line('.'))
+	if l:col<=0
+		return ''
+	endif
+	let l:str = getline(line('.'))[l:col : col('.')-1]
+	if l:str[:-2] =~ ']' || l:str[:-2] =~ ')'
+		return ''
+	endif
+	return 'A:'.(len(split(l:str[:-2],',',1))-1)
+endfunction
+
+" nobuflisted for preview window
+function! RemoveBufferIfPreview()
+	if &previewwindow
+		if stridx(expand("%:p"),getcwd())!=0 " probably not a file I'm working on
+			setlocal nobuflisted
+		endif
+	endif
+endf
+autocmd BufEnter * call RemoveBufferIfPreview()
+
+function! GetLookupURL(lookupword)
+	let l:which = inputlist(['Look up "'.a:lookupword.'" where?','1: English Wikipedia','2: German Wikipedia','3: English Wiktionary','4: German Wiktionary','5: Leo','6: Leo Spanish', '7: Google','8: Google Codesearch', '9: Python Docs', '10: Thesaurus'])
+	if l:which==1 
+		let l:url = 'http://en.wikipedia.org/wiki/'.a:lookupword
+	elseif l:which==2
+		let l:url = 'http://de.wikipedia.org/wiki/'.a:lookupword
+	elseif l:which==3
+		let l:url = 'http://en.wiktionary.org/wiki/'.a:lookupword
+	elseif l:which==4
+		let l:url = 'http://de.wiktionary.org/wiki/'.a:lookupword
+	elseif l:which==5
+		let l:url = 'http://dict.leo.org/?search='.a:lookupword
+	elseif l:which==6
+		let l:url = 'http://dict.leo.org/esde?search='.a:lookupword
+	elseif l:which==7
+		let l:url = 'http://www.google.ch/search?q='.a:lookupword
+	elseif l:which==8
+		let l:url = 'http://www.google.ch/codesearch?q=lang:'.&filetype.'+file:.'.expand('%:e').'+'.a:lookupword
+	elseif l:which==9
+		let l:url = 'http://www.google.com/search?q='.a:lookupword.'\&domains=docs.python.org\&sitesearch=docs.python.org'
+	elseif l:which==10
+		let l:url = 'http://thesaurus.reference.com/browse/'.a:lookupword
+	else
+		let l:url = ''
+	endif
+	return '"'.l:url.'"'
+endfunction
+
+" quickfix highlighting and balloon eval
+if has("gui_running")
+	set ballooneval
+	set balloonexpr=QuickfixBallonexpr()
+	sign define qfsign linehl=Quickfix text=Q
+	highlight Quickfix gui=undercurl guisp=Yellow
+	autocmd QuickfixCmdPost * call QuickfixHighlight()
+endif
+function! QuickfixHighlight()
+	let qflist = getqflist()
+	let i = 1
+	sign unplace *
+	for entry in qflist
+		if entry.valid != 0
+			execute "sign place ".i." line=".(entry.lnum)." name=qfsign buffer=".(entry.bufnr)
+			let i = i + 1
+		endif
+	endfor
+endfunction
+function! QuickfixBallonexpr()
+	let qflist = getqflist()
+	for entry in qflist
+		if entry.lnum == v:beval_lnum && entry.bufnr == v:beval_bufnr
+			return entry.text	
+		endif
+	endfor
+	return ""
+endfunction
+

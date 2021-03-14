@@ -1,0 +1,327 @@
+\documentclass{beamer}
+\usepackage[ngerman]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{helvet}
+
+\usetheme{Frankfurt} % Warsaw is nice, too
+
+
+\title[]{Fix-It}
+\subtitle{How to repair your electronic stuff when it's broken}
+\author{Andreas Müller}
+\date{}
+\institute{Cosin 2009}
+
+\AtBeginSection[]{\frame{\tableofcontents[current,sectionstyle=show/shaded,subsectionstyle=show/show/hide]}}
+\setbeamercovered{transparent=50}
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+\setcounter{tocdepth}{2}
+\frame[plain]{\tableofcontents}
+
+\section{Introduction}
+
+\subsection{Disclaimer}
+\begin{frame}
+	\frametitle{Disclaimer}
+	\begin{block}{Please note:}
+		\begin{itemize}
+			\item Erfahrungswerte
+			\item Use at your own risk \ldots
+			\item Gerät kann beschädigt werden
+			\item Mensch kann beschädigt werden
+				\begin{itemize}
+					\item Gerät immer ausstecken
+					\item Kondensatoren entladen!
+					\item Verstand benutzen
+				\end{itemize}
+			\item Brandgefahr
+				\begin{itemize}
+					\item Keine Sicherungen überbrücken oder stärkere
+						einbauen
+					\item Keine brennbaren Materialien verwenden (Isolierband,
+						etc)
+					\item Brennbarkeit notfalls kurz mit Feuerzeug testen
+				\end{itemize}
+			\item Voids your warranty
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+
+\subsection{Why repair?}
+\begin{frame}
+	\frametitle{Why repair?}
+	\begin{block}{Why repair stuff?}
+		\begin{itemize}
+			\item Neugier
+			\item Herausforderung/persönlicher Ehrgeiz
+			\item Billiger
+			\item Umweltfreundlicher
+			\item Geht oft schneller als altes Gerät entsorgen und neues
+				kaufen 
+			\item Weniger nervtötend, als sich mit \$KUNDENSERVICE
+				rumzuschlagen
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Ausrüstung}
+\begin{frame}
+	\frametitle{Ausrüstung}
+	\begin{block}{Equipment}
+		\begin{itemize}
+			\item Allgemeine Werkstattausrüstung (Schraubenzieher, etc.)
+			\item Multimeter
+				\begin{itemize}
+					\item Akustischer Durchgangsprüfer ist praktisch
+					\item Kosten: 20-30 CHF
+				\end{itemize}
+			\item Lötkolben
+				\begin{itemize}
+					\item Temperaturgeregelte Elektroniklötstation von
+						Vorteil (Temperatur muss nicht einstellbar sein)
+					\item Kosten: ca 150 CHF 
+				\end{itemize}
+			\item Kleinteile (Lötzinn, Entlötlitze, Kabel, Ersatzteile, etc)
+				\begin{itemize}
+					\item ca 50 CHF 
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Ausrüstung / Bauteile}
+	\begin{block}{Bezugsquellen für Ausrüstung und Bauteile}
+		\begin{itemize}
+			\item Online: distrelec.ch 
+			\item Online: ebay.ch
+			\item Offline/ZH: Bastli (see www.bastli.ethz.ch)
+			\item Offline/ZH: Pusterla (see pusterla.ch)
+			\item Samples
+			\item etc. 
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Was geht kaputt / wie reparieren?}
+
+\subsection{Sicherungen}
+\begin{frame}
+	\frametitle{Sicherungen}
+	\begin{block}{Was?}
+		\begin{itemize}
+			\item Selbstschutz
+			\item Geht oft als erstes kaputt (soll auch!)
+			\item Vorhanden v.a. in grösseren/teureren Geräten
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie erkennen?}
+		\begin{itemize}
+			\item Gerät verhält sich, als hätte es (teilweise) keinen Strom
+			\item Am besten alle Sicherungen mit Durchgangsprüfer testen
+			\item Sicherungen oft mit F beschriftet (F1, F2, ..)
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie reparieren?}
+		\begin{itemize}
+			\item Sicherung mit gleicher Stromgrenze verwenden (!)
+			\item Kosten: ca CHF 0.50
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.4]{photos/sicherungen.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/lcd_sicherungen.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/lcd_sicherungen_close1.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/lcd_sicherungen_close2.jpg}
+	\end{center}
+\end{frame}
+
+\subsection{Kondensatoren}
+\begin{frame}
+	\frametitle{Kondensatoren}
+	\begin{block}{Wo?}
+		\begin{itemize}
+			\item Elektrolytkondensatoren in Netzteilen
+			\item Hochspannungskondensatoren (e.g. Invertereinheit)
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie erkennen?}
+		\begin{itemize}
+			\item Geruch, Brandspuren, Knall beim Kaputtgehen
+			\item Ausfall von Elkos oft wegen Alterung
+			\item Kondensatoren oft mit C beschriftet (C1, C2, ..)
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie reparieren?}
+		\begin{itemize}
+			\item gleicher Typ (z.B. Elko)
+			\item gleiche Kapazität
+			\item gleiche oder höhere Spannung
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/kondensatoren.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/kondensator_futsch.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/inverter.jpg}
+	\end{center}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/inverter_close.jpg}
+	\end{center}
+\end{frame}
+
+\subsection{Mechanisches}
+\begin{frame}
+	\frametitle{Mechanische Elemente und Kontakte}
+	\begin{block}{Wo?}
+		\begin{itemize}
+			\item Geräte, die viel bewegt werden
+			\item Lüfter, Kabel, Batteriekontakte, Kopfhörerkontakt
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie erkennen?}
+		\begin{itemize}
+			\item Defekt oft sichtbar
+			\item Mit Voltmeter und/oder Durchgangsprüfer
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie reparieren?}
+		\begin{itemize}
+			\item Lötkolben + Draht :) 
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Interne Batterien und Akkus}
+\begin{frame}
+	\frametitle{Interne Batterien und Akkus}
+	\begin{block}{Was?}
+		\begin{itemize}
+			\item Stützbatterie für Uhr oder flüchtigen Speicher
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wo?}
+		\begin{itemize}
+			\item Motherboards, MP3 Player, Kameras, etc.
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie erkennen?}
+		\begin{itemize}
+			\item Uhr verliert die Zeit nach Ausschalten
+			\item Settings nach Ausschalten auf Default (z.B. BIOS)
+			\item Oft Alterserscheinung
+			\item Manchmal sichtbar (Batterie ausgelaufen, etc.)
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie reparieren?}
+		\begin{itemize}
+			\item Gleiche Spannung und Typ; notfalls Ausbauen ohne Ersatz
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Transistoren}
+\begin{frame}
+	\frametitle{Transistoren}
+	\begin{block}{Wo?}
+		\begin{itemize}
+			\item z.B. Leistungstransistoren in regelbaren Netzteilen
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie erkennen?}
+		\begin{itemize}
+			\item Gerät geht während Betrieb kaputt, ohne Schall/Rauch
+			\item Gerät funktioniert normal, aber keine Ausgangsspannung
+			\item 3 oder mehr Anschlüsse
+			\item Testen mit Diodentester
+		\end{itemize}
+	\end{block}
+	\begin{block}{Wie reparieren?}
+		\begin{itemize}
+			\item Gleiches Modell oder Ersatzmodell (Google hilft ggf.)
+		\end{itemize}
+	\end{block}
+\end{frame}
+\begin{frame}[plain]
+	\begin{center}
+		\includegraphics[scale=0.3]{photos/transistoren.jpg}
+	\end{center}
+\end{frame}
+
+\section{Emergencies}
+\subsection{Wasser}
+\begin{frame}
+	\frametitle{Notfälle -- Gerät wurde nass}
+	\begin{block}{Was machen?}
+		\begin{itemize}
+			\item die Bauteile selbst haben normalerweise kein Problem mit
+				Wasser, aber wenn Strom fliesst, entstehen Kurzschlüsse 
+			\item auch reines Wasser leitet Strom!
+			\item nach Kontakt mit Wasser sofort alle Stromquellen entfernen
+			\item ggf. vorsichtig putzen, z.B. mit Wasser oder Reinbenzin
+			\item vor erneuter Inbetriebnahme \emph{komplett} trocknen
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Fazit}
+\subsection{Fazit}
+\begin{frame}
+	\frametitle{Fazit}
+	\begin{block}{Fazit}
+		\begin{itemize}
+			\item Reparatur oft möglich, ohne die Schaltung zu verstehen
+			\item Kosten sind meist minimal
+			\item Faustregel: Abnutzung entsteht, wo Energie umgesetzt wird
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Questions}
+\subsection{Questions}
+\begin{frame}
+	\frametitle{Questions?}
+	\begin{block}{Fragen}
+		Fragen?
+	\end{block}
+	\begin{block}{Links:}
+		\begin{itemize}
+			\item \small{\url{http://de.wikipedia.org/wiki/Kategorie:Elektrisches\_Bauelement}}
+			\item \small{\url{http://www.elektronik-kompendium.de}}
+			\item \small{\url{http://people.ee.ethz.ch/~andrmuel/files/uncompressed/ClockDoc.pdf}}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\end{document}
+

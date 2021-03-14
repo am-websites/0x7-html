@@ -1,0 +1,416 @@
+\documentclass[10pt]{beamer}
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{helvet}
+\usepackage{listings}
+
+\usetheme{Frankfurt}
+
+% listing options
+\definecolor{lightgray}{gray}{0.9}
+\lstset{basicstyle=\footnotesize, numbers=left, numberstyle=\tiny, backgroundcolor=\color{lightgray}, showstringspaces=false}
+
+
+\title[]{Event Correlation Engine}
+\subtitle{Master's Thesis -- Final Presentation}
+\author{Andreas Müller\\[0.8em]Tutors:\\Christoph Göldi, Bernhard Tellenbach\\[0.8em]Supervisor:\\Prof. B. Plattner}
+% \institute{ETH~~--~~ITET~~--~~CSG}
+\institute{}
+% \date{September 2, 2009}
+\date{}
+\titlegraphic{
+	\begin{minipage}{0.7\textwidth}
+		\flushleft{
+		\includegraphics[scale=0.2]{../report/figures/logos/open_systems.pdf}	
+		}
+		\flushright{
+		\vspace{-1.75cm}
+		\includegraphics[scale=0.55]{../report/figures/logos/tik.pdf}
+		}
+	\end{minipage}
+	\vspace*{1cm}
+}
+
+\AtBeginSection[]{\frame{\tableofcontents[current,sectionstyle=show/shaded,subsectionstyle=show/show/hide]}}
+\setbeamercovered{transparent=50}
+
+\begin{document}
+
+\begin{frame}[plain]
+	\titlepage
+\end{frame}
+
+\setcounter{tocdepth}{1}
+\frame[plain]{\tableofcontents}
+\setcounter{tocdepth}{2}
+
+\section{Introduction}
+\subsection{Event Correlation}
+\begin{frame}
+	\frametitle{Event Correlation}
+	\begin{block}{Event Correlation}
+		\begin{itemize}
+			\item Event
+				\begin{itemize}
+					\item Any occurrence; anything, which happened
+					\item Computing: message, what happened when
+				\end{itemize}
+			\item Correlation: analysis of co-relations
+			\item Goal: gain higher-level knowledge
+			\item Applications
+				\begin{itemize}
+					\item Market data analysis
+					\item Algorithmic trading
+					\item Fraud detection
+					\item System log analysis
+					\item Network management
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+	\begin{block}{Event Correlation Engine (ECE)}
+		\begin{itemize}
+			\item Application or toolkit to correlate events 
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Motivation and Task}
+
+\subsection{Background}
+\begin{frame}
+	\frametitle{Background}
+	\begin{block}{Background}
+		\begin{itemize}
+			\item Master's thesis at Open Systems AG
+			\item Open Systems provides managed security for customers around
+				the world, operating a global network with more than 1500
+				hosts 
+		\end{itemize}
+	\end{block}
+	\begin{block}{Setup}
+		\begin{itemize}
+			\item Hosts generate events from syslog messages and network
+				observations, e.g.:
+				\begin{itemize}
+					\item Network link down
+					% \item network link up
+					% \item error updating anti-virus signatures
+					\item CPU load high
+				\end{itemize}
+			\item Events end up in tickets, which are handled manually
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Motivation and Task}
+\begin{frame}
+	\frametitle{Motivation and Task}
+	\begin{block}{Problems}
+		\begin{itemize}
+			\item Handling all events manually is time consuming and
+				cumbersome
+			\item Simple problems create too many events, important events may
+				be overlooked
+			\item Same problem has to be handled again and again
+		\end{itemize}
+	\end{block}
+	\begin{block}{How to mitigate these problems?}
+		\begin{itemize}
+			\item[$\Rightarrow$] Intelligently pre-process the events with an
+				ECE
+		\end{itemize}
+	\end{block}
+	\begin{block}{Task}
+		\begin{itemize}
+			\item Choose or design, implement and evaluate an ECE suitable to
+				extend the ticketing system of Open Systems
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+% \subsection{Task}
+% \begin{frame}
+	% \frametitle{Task}
+	% \begin{block}{Goals for the ECE}
+		% \begin{itemize}
+			% \item Make tickets more intelligible by collecting related events
+			% \item Help find a problems root-cause faster by structuring the
+				% tickets
+			% \item Escalate important events; suppress uncritical events
+		% \end{itemize}
+	% \end{block}
+% \end{frame}
+
+\section{Approach}
+
+\subsection{Event Pattern Analysis}
+
+\begin{frame}
+	\frametitle{Event Pattern Analysis}
+	\begin{block}{Pattern Analysis: Goals}
+		\begin{itemize}
+			\item Qualitative and quantitative overview of events
+			\item Identification of frequent patterns
+		\end{itemize}
+	\end{block}
+	\begin{block}{Statistical analysis}
+		\begin{itemize}
+			\item E.g. event rate:
+				\begin{itemize}
+					\item Average: 1-2 events per minute
+					\item Peaks: Up to 900 events per minute
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+	\begin{block}{Pattern identification}
+		\begin{itemize}
+			\item E.g. temporal correlation (next slide)
+		\end{itemize}
+	\end{block}
+	% \begin{block}{Statistics and findings}
+		% \begin{itemize}
+			% \item Average: 1-2 events per minute
+			% \item Peaks: 900 events per minute ($\to$ bursts)
+			% \item Top 5 event types responsible for more than half of all events \\($\to$ compression should be helpful)
+			% \item Frequent pattern e.g.
+				% \begin{itemize}
+					% \item Service down/up due to (repeated) short ISP problems
+				% \end{itemize}
+		% \end{itemize}
+	% \end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Event Pattern Analysis: Temporal Correlation}
+	\vspace{-0.4cm}\begin{center}\includegraphics[scale=0.35]{matrix_top13.png}\end{center}
+\end{frame}
+
+
+\subsection{Analysis of Existing Approaches}
+\begin{frame}
+	\frametitle{Analysis of Existing Approaches}
+	\begin{block}{Correlation Approach}
+		\begin{itemize}
+			\item Decisions of the correlation engine should be
+				reproducible and understandable for humans
+				\begin{itemize}
+					\item[$\Rightarrow$] Rule-based approach most suitable
+				\end{itemize}
+			\item Finite-state machine would be suitable for some patterns
+				\begin{itemize}
+					\item[$\Rightarrow$] Allow regular expressions on events
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+
+	\begin{block}{Existing Software}	
+		\begin{itemize}
+			\item No suitable software found
+			\item Many concepts can be reused, e.g.:
+				\begin{itemize}
+					\item Dynamic contexts% for representation of internal state (from SEC and others)
+					\item Combination of simple building blocks into powerful
+						rules
+					% \item XML rules (OSSIM, OSSEC, others)
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Specification and Implementation}
+
+\begin{frame}
+	\frametitle{Specification}
+	\begin{block}{Requirements and design decisions}
+		\begin{itemize}
+			\item Rule language should be easy to learn
+				\begin{itemize}
+					\item[$\Rightarrow$] XML based rules
+				\end{itemize}
+			% \item Scalability: large number of rules should not result in confusion
+				% \begin{itemize}
+					% \item[$\Rightarrow$] Separation of correlation rules into independent groups
+				% \end{itemize}
+			\item Local and global correlation should be possible
+				\begin{itemize}
+					\item[$\Rightarrow$] Tree of homogeneous correlation nodes
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+	\begin{block}{Implementation}
+		\begin{itemize}
+			\item Functional programming to build rule functions from simple
+				components
+			\item Rapid prototyping was valued higher than execution speed
+				\begin{itemize}
+					\item[$\Rightarrow$] Implemented in Python
+				\end{itemize}
+			% \item Web interfaces as front-ends
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Implementation: Node Tree}
+	\begin{center}\includegraphics[scale=0.35]{ce_tree.pdf}\end{center}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Implementation: Functional Overview}
+	\begin{center}\includegraphics[scale=0.8]{ce_node.pdf}\end{center}
+\end{frame}
+
+\subsection{Testing and Evaluation}
+
+\begin{frame}
+	\frametitle{Testing and Evaluation}
+	\begin{block}{Testing and evaluation methods}
+		\begin{itemize}
+			\item Profiling
+				% \begin{itemize}
+					% \item[$\Rightarrow$] Lead to several minor improvements
+				% \end{itemize}
+			\item Unit tests
+				% \begin{itemize}
+					% \item[$\Rightarrow$] Currently 66 tests
+				% \end{itemize}
+			\item Sanity checks
+				% \begin{itemize}
+					% \item[$\Rightarrow$] E.g. event balance
+				% \end{itemize}
+			\item Evaluation with random events
+			\item Evaluation with replayed real events
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Conclusions}
+\subsection{Conclusions}
+\begin{frame}
+	\frametitle{Conclusions}
+	\begin{block}{Strengths}
+		\begin{itemize}
+			\item Functional programming allows to build rule functions at
+				startup
+				\begin{itemize}
+					\item[$\Rightarrow$] No need for (slow and hard to debug)
+						\texttt{eval()} during operation
+		 		\end{itemize}
+			% \item Tree structure with homogeneous nodes
+				% \begin{itemize}
+					% \item[$\Rightarrow$] Simple operations (filtering,
+						% enrichment) close to event source, more complex
+						% correlation centrally
+					% \item[$\Rightarrow$] No need for separate agent and master
+				% \end{itemize}
+			\item Regular expressions to match patterns suitable for FSMs
+				\begin{itemize}
+					\item[$\Rightarrow$] As powerful as FSMs, but better known
+						and easier to use
+				\end{itemize}
+			\item Cache automatically decides how long to keep an event
+		\end{itemize}
+	\end{block}
+	\begin{block}{Aptitude for real-world events}
+		\begin{itemize}
+			\item Events of one month can be processed in $< 10$ minutes
+				\begin{itemize}
+					\item[$\Rightarrow$] Real-time operation no problem
+				\end{itemize}
+			\item Simple compression can reduce the event volume by  $> 50\%$
+			\item Successful detection of complex patterns
+				\begin{itemize}
+					\item[$\Rightarrow$] E.g. detection of successful failover
+						transition with regexp
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Outlook}
+\begin{frame}
+	\frametitle{Outlook}
+	\begin{block}{Future development}
+		\begin{itemize}
+			\item Support for rule creation (e.g. pattern mining, GUI tools)
+			\item Central rule database with target scopes for each rule group
+				\begin{itemize}
+					\item[$\Rightarrow$] ``Rule applies to all hosts in country X'' 
+				\end{itemize}
+			\item Reducing complexity
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section{Demo}
+
+\subsection{Example Problem}
+
+\begin{frame}
+	\frametitle{Demo: Example Problem}
+	\begin{block}{Example: Irrelevant IP theft events}
+		\begin{itemize}
+			\item Standby firewall becomes master, while primary firewall is
+				still up
+
+			\item Firewalls detect second host with same IP address
+				\begin{itemize}
+					\item[$\Rightarrow$] Events indicating IP address theft
+				\end{itemize}
+
+			\item Duplicate master is also detected
+				\begin{itemize}
+					\item Corresponding event often generated after IP theft
+						event
+				\end{itemize}
+
+			\item It is sufficient to solve the root problem (duplicate master)
+				\begin{itemize}
+					\item[$\Rightarrow$] IP address theft events are of no interest
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\subsection{Correlation Approach}
+
+\begin{frame}
+	\frametitle{Demo: Correlation Approach}
+	\begin{block}{Correlation behaviour}
+		\begin{itemize}
+			\item Event indicating a duplicate master
+				\begin{itemize}
+					\item[$\Rightarrow$] Represent this knowledge as context
+					\item[$\Rightarrow$] Suppress IP theft events from same
+						host during last minute
+				\end{itemize}
+			\item As long as context exists, suppress further IP theft events
+			\item Event indicating duplicate master is gone
+				\begin{itemize}
+					\item[$\Rightarrow$] Remove context
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+	\begin{block}{Demo}
+		\begin{itemize}
+			\item Real events with anonymized host names
+			\item One correlation node
+				\begin{itemize}
+					\item First run: without correlation rules 
+					\item Second run: rules with behaviour explained above
+				\end{itemize}
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\section*{Questions}
+\subsection*{Questions}
+\begin{frame}
+	\frametitle{Questions?}
+	\begin{center}	
+		Thank you for your attention.
+	\end{center}
+\end{frame}
+
+\end{document}
+
